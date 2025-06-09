@@ -43,7 +43,7 @@ export default async function handler(req, res) {
     
     // IMPORTANT: You should hide your Genius token in environment variables
     const geniusSearchResponse = await axios.get(searchUrl, {
-      headers: { 'Authorization': `Bearer ${process.env.qxIckxm_sHxaWsJe-dPkETyvjJcxhu3_ToC0mROwRB-jd8b0iuokQGFr9CieHYAx}` }, // Create a free token on genius.com/api-clients
+      headers: { 'Authorization': `Bearer ${process.env.GENIUS_API_TOKEN}` }, // Create a free token on genius.com/api-clients
     });
 
     if (geniusSearchResponse.data.response.hits.length === 0) {
