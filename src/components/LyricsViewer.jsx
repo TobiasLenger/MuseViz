@@ -1,25 +1,35 @@
+// src/components/LyricsViewer.jsx
+
 import React, { useRef, useEffect } from 'react';
 import './LyricsViewer.css';
 
 const LyricsViewer = ({ lyricsData, currentTime }) => {
   const activeLineRef = useRef(null);
 
- if (!lyricsData || typeof lyricsData.lyrics !== 'string' && !Array.isArray(lyricsData.lyrics)) {
+  // --- START OF FIX ---
+
+  // 1. Handle the initial loading or error state cleanly.
+  if (!lyricsData || !lyricsData.lyrics) {
     return <div className="lyrics-container"><p>Search for a song to see lyrics.</p></div>;
   }
 
   const { synced, lyrics } = lyricsData;
+  
+  // 2. Create a reliable flag. Synced lyrics must be a non-empty array.
+  const areLyricsSynced = synced && Array.isArray(lyrics) && lyrics.length > 0;
 
   let activeIndex = -1;
-  if (synced) {
-    // Find the index of the current line
+  if (areLyricsSynced) {
+    // This block is now safe because we've confirmed `lyrics` is an array.
     activeIndex = lyrics.findIndex((line, index) => {
       const nextLine = lyrics[index + 1];
+      // Defensive check in case a line has no time property
+      if (typeof line.time !== 'number') return false;
       return currentTime >= line.time && (nextLine ? currentTime < nextLine.time : true);
     });
   }
-  
-  // Auto-scroll logic
+
+  // Auto-scroll logic (no changes needed here)
   useEffect(() => {
     if (activeLineRef.current) {
       activeLineRef.current.scrollIntoView({
@@ -29,10 +39,11 @@ const LyricsViewer = ({ lyricsData, currentTime }) => {
     }
   }, [activeIndex]);
 
-  return (
-    <div className="lyrics-container">
-      {synced ? (
-        lyrics.map((line, index) => (
+  // 3. Use our reliable flag to decide what to render.
+  if (areLyricsSynced) {
+    return (
+      <div className="lyrics-container">
+        {lyrics.map((line, index) => (
           <p
             key={index}
             ref={index === activeIndex ? activeLineRef : null}
@@ -40,12 +51,28 @@ const LyricsViewer = ({ lyricsData, currentTime }) => {
           >
             {line.text}
           </p>
-        ))
-      ) : (
+        ))}
+      </div>
+    );
+  }
+
+  // 4. If lyrics aren't synced (or are malformed), render them as static text.
+  // This also handles the case where lyrics is a string from Genius.
+  if (typeof lyrics === 'string') {
+    return (
+      <div className="lyrics-container">
         <pre className="static-lyrics">{lyrics}</pre>
-      )}
+      </div>
+    );
+  }
+
+  // 5. A final fallback if the data is in a completely unexpected format.
+  return (
+    <div className="lyrics-container">
+      <p>Lyrics are available but could not be displayed.</p>
     </div>
   );
+  // --- END OF FIX ---
 };
 
 export default LyricsViewer;
