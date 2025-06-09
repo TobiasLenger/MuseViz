@@ -1,19 +1,14 @@
-/* File: src/components/PlaybackControls.css */
-.playback-controls-wrapper { display: grid; grid-template-columns: 1fr 2fr 1fr; align-items: center; gap: 20px; width: 100%; height: 100%; padding: 0 20px; box-sizing: border-box; }
-.song-info { display: flex; align-items: center; gap: 15px; overflow: hidden; }
-.playback-thumbnail { width: 56px; height: 56px; border-radius: 4px; flex-shrink: 0; }
-.playback-song-title { font-size: 0.9rem; font-weight: 500; color: var(--text-color); margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.center-controls { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; }
-.control-button { background-color: var(--text-color); color: #000; border: none; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.1s ease; }
+/* File: src/components/PlaybackControls.css (Reverted) */
+
+.playback-controls { display: flex; align-items: center; justify-content: space-between; gap: 20px; background-color: #181818; padding: 10px 20px; border-radius: 12px; margin-top: 20px; }
+.main-controls { flex-shrink: 0; }
+.control-button { background-color: var(--text-color); color: #000; border: none; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.1s ease; }
 .control-button:hover { transform: scale(1.05); }
-.progress-bar-container { width: 100%; display: flex; align-items: center; gap: 10px; color: var(--text-color-secondary); font-size: 0.8rem; }
-.volume-container { display: flex; justify-content: flex-end; align-items: center; gap: 10px; color: var(--text-color-secondary); }
-input[type="range"] { -webkit-appearance: none; appearance: none; width: 100%; height: 4px; background: #4d4d4d; border-radius: 5px; outline: none; cursor: pointer; position: relative; }
-input[type="range"]::before { content: ''; height: 4px; background: #b3b3b3; border-radius: 5px; position: absolute; top: 0; left: 0; z-index: 2; }
+.progress-bar-container { flex-grow: 1; display: flex; align-items: center; gap: 15px; color: var(--text-color-secondary); font-size: 0.85rem; }
+.volume-container { display: flex; align-items: center; gap: 10px; color: var(--text-color-secondary); width: 150px; }
+input[type="range"] { -webkit-appearance: none; appearance: none; width: 100%; height: 6px; background: #4d4d4d; border-radius: 5px; outline: none; cursor: pointer; position: relative; }
+input[type="range"]::before { content: ''; height: 6px; background: var(--primary-color); border-radius: 5px; position: absolute; top: 0; left: 0; z-index: 2; }
 .progress-slider::before { width: var(--progress-percent, 0%); }
 .volume-slider::before { width: var(--volume-percent, 50%); }
-input[type="range"]:hover::before { background: var(--primary-color); }
-input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 12px; height: 12px; background: var(--text-color); border-radius: 50%; margin-top: -4px; position: relative; z-index: 3; opacity: 0; transition: opacity 0.2s; }
-input[type="range"]:hover::-webkit-slider-thumb { opacity: 1; }
-input[type="range"]::-moz-range-thumb { width: 12px; height: 12px; background: var(--text-color); border-radius: 50%; position: relative; z-index: 3; opacity: 0; }
-input[type="range"]:hover::-moz-range-thumb { opacity: 1; }
+input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 16px; height: 16px; background: var(--text-color); border-radius: 50%; border: none; margin-top: -5px; position: relative; z-index: 3; }
+input[type="range"]::-moz-range-thumb { width: 16px; height: 16px; background: var(--text-color); border-radius: 50%; border: none; position: relative; z-index: 3; }
