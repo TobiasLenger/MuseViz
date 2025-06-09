@@ -1,4 +1,4 @@
-// File: src/App.jsx (Reverted UI with Dev Mode Fix)
+// File: src/App.jsx (Corrected and Restructured)
 
 import React, { useState, useRef, useEffect } from 'react';
 import { searchYouTube, getRelatedVideos } from './api/youtubeApi';
@@ -28,8 +28,8 @@ function App() {
   const [localFileName, setLocalFileName] = useState('');
   const [localLrcText, setLocalLrcText] = useState('');
 
-  const playerRef = useRef(null); // Ref for YouTube player
-  const localAudioRef = useRef(null); // --- Ref for Local <audio> element ---
+  const playerRef = useRef(null);
+  const localAudioRef = useRef(null); // Ref for the <audio> element
   const intervalRef = useRef(null);
 
   useEffect(() => { const handleKeyDown = (e) => { if (e.ctrlKey && e.shiftKey && e.key === 'D') { e.preventDefault(); setIsDevMenuOpen(prev => !prev); } }; window.addEventListener('keydown', handleKeyDown); return () => window.removeEventListener('keydown', handleKeyDown); }, []);
@@ -44,13 +44,17 @@ function App() {
     if (localFileUrl) { URL.revokeObjectURL(localFileUrl); setLocalFileUrl(null); }
   };
 
-  // --- UPDATED CONTROLS WITH DUAL LOGIC ---
+  // --- CORRECTED DUAL-LOGIC CONTROLS ---
   const handlePlayPause = () => {
     if (playerType === 'youtube' && playerRef.current) {
       const playerState = playerRef.current.getPlayerState();
       if (playerState === 1) playerRef.current.pauseVideo(); else playerRef.current.playVideo();
     } else if (playerType === 'local' && localAudioRef.current) {
-      if (isPlaying) localAudioRef.current.pause(); else localAudioRef.current.play();
+      if (localAudioRef.current.paused) {
+        localAudioRef.current.play();
+      } else {
+        localAudioRef.current.pause();
+      }
     }
   };
 
@@ -62,7 +66,9 @@ function App() {
     } else if (playerType === 'local' && localAudioRef.current) {
       localAudioRef.current.currentTime = time;
     }
-    if (!isPlaying) handlePlayPause();
+    if (!isPlaying && localAudioRef.current && localAudioRef.current.paused) {
+      localAudioRef.current.play();
+    }
   };
 
   const handleVolumeChange = (newVolume) => {
@@ -71,13 +77,12 @@ function App() {
     if (playerType === 'youtube' && playerRef.current) {
       playerRef.current.setVolume(vol);
     } else if (playerType === 'local' && localAudioRef.current) {
-      localAudioRef.current.volume = vol / 100; // HTML audio volume is 0.0-1.0
+      localAudioRef.current.volume = vol / 100;
     }
   };
 
   const handleReplay = () => handleSeek(0);
   
-  // YouTube specific handlers
   const onPlayerReady = (event) => { playerRef.current = event.target; playerRef.current.setVolume(volume); };
   const onPlayerStateChange = (event) => { clearInterval(intervalRef.current); if (event.data === 0) { setIsPlaying(false); setIsSongFinished(true); } else if (event.data === 1) { setIsPlaying(true); setIsSongFinished(false); setDuration(playerRef.current.getDuration()); intervalRef.current = setInterval(() => { setCurrentTime(playerRef.current.getCurrentTime()); }, 250); } else { setIsPlaying(false); } };
   
@@ -94,7 +99,6 @@ function App() {
         {selectedVideo && !isSongFinished && <button onClick={handleStopPlayback} className="stop-button">New Search</button>}
       </header>
       
-      {/* Conditionally render the correct player, both are invisible */}
       {selectedVideo && playerType === 'youtube' && <Player videoId={selectedVideo.id.videoId} onReady={onPlayerReady} onStateChange={onPlayerStateChange} />}
       {selectedVideo && playerType === 'local' && (
         <audio
@@ -105,6 +109,7 @@ function App() {
           onPlay={() => setIsPlaying(true)}
           onPause={() => setIsPlaying(false)}
           onEnded={() => setIsSongFinished(true)}
+          onVolumeChange={(e) => setVolume(e.target.volume * 100)}
           style={{ display: 'none' }}
           autoPlay
         />
@@ -119,32 +124,30 @@ function App() {
         )}
         {searchResults.length > 0 && <div className="search-results">{searchResults.map((video) => (<div key={video.id.videoId} className="result-item" onClick={() => handleSelectVideo(video)}><img src={video.snippet.thumbnails.default.url} alt={video.snippet.title} /><p>{video.snippet.title}</p></div>))}</div>}
         
-        {selectedVideo && (
+        {selectedVideo && !isSongFinished && lyricsData && (
+          <LyricsViewer lyricsData={lyricsData} currentTime={currentTime} onSeek={handleSeek} />
+        )}
+        
+        {selectedVideo && isSongFinished && (
           <>
-            <h2 className="current-song-title">{selectedVideo.snippet.title}</h2>
-            
-            {isSongFinished && (
-              <>
-                <div className="replay-container"><button onClick={handleReplay} className="replay-button">Replay</button></div>
-                {recommendations.length > 0 && (
-                  <div className="recommendations-container">
-                    <h3 className="recommendations-title">Up Next...</h3>
-                    <div className="search-results">{recommendations.map((rec) => (<div key={rec.id.videoId} className="result-item" onClick={() => handleSelectVideo(rec)}><img src={rec.snippet.thumbnails.default.url} alt={rec.snippet.title} /><p>{rec.snippet.title}</p></div>))}</div>
-                  </div>
-                )}
-              </>
-            )}
-
-            {!isSongFinished && (
-              <>
-                <PlaybackControls isPlaying={isPlaying} onPlayPause={handlePlayPause} currentTime={currentTime} duration={duration} onSeek={handleSeek} volume={volume} onVolumeChange={handleVolumeChange} />
-                {lyricsData && <LyricsViewer lyricsData={lyricsData} currentTime={currentTime} onSeek={handleSeek} />}
-              </>
+            <div className="replay-container"><button onClick={handleReplay} className="replay-button">Replay</button></div>
+            {recommendations.length > 0 && (
+              <div className="recommendations-container">
+                <h3 className="recommendations-title">Up Next...</h3>
+                <div className="search-results">{recommendations.map((rec) => (<div key={rec.id.videoId} className="result-item" onClick={() => handleSelectVideo(rec)}><img src={rec.snippet.thumbnails.default.url} alt={rec.snippet.title} /><p>{rec.snippet.title}</p></div>))}</div>
+              </div>
             )}
           </>
         )}
         {isLoading && !lyricsData && <div className="loader">Loading...</div>}
       </main>
+
+      {selectedVideo && !isSongFinished && (
+        <footer className="playback-footer">
+          <h2 className="current-song-title">{selectedVideo.snippet.title}</h2>
+          <PlaybackControls isPlaying={isPlaying} onPlayPause={handlePlayPause} currentTime={currentTime} duration={duration} onSeek={handleSeek} volume={volume} onVolumeChange={handleVolumeChange} />
+        </footer>
+      )}
     </div>
   );
 }

@@ -1,8 +1,28 @@
-/* File: src/components/PlaybackControls.css (Reverted) */
-
-.playback-controls { display: flex; align-items: center; justify-content: space-between; gap: 20px; background-color: #181818; padding: 10px 20px; border-radius: 12px; margin-top: 20px; }
+/* File: src/components/PlaybackControls.css */
+.playback-controls {
+  max-width: 800px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  background-color: transparent;
+  padding: 10px 20px;
+}
 .main-controls { flex-shrink: 0; }
-.control-button { background-color: var(--text-color); color: #000; border: none; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.1s ease; }
+.control-button {
+  background-color: var(--text-color);
+  color: #000;
+  border: none;
+  width: 48px;  /* <-- Increased Size */
+  height: 48px; /* <-- Increased Size */
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
 .control-button:hover { transform: scale(1.05); }
 .progress-bar-container { flex-grow: 1; display: flex; align-items: center; gap: 15px; color: var(--text-color-secondary); font-size: 0.85rem; }
 .volume-container { display: flex; align-items: center; gap: 10px; color: var(--text-color-secondary); width: 150px; }
