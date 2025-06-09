@@ -19,6 +19,9 @@ body, html {
   background-color: var(--background-color);
   color: var(--text-color);
   font-family: 'Poppins', sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* --- THE KEY LAYOUT FIX --- */
