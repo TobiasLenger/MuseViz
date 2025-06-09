@@ -1,74 +1,14 @@
 /* File: src/components/LyricsViewer.css */
-
 .lyrics-container {
-  background-color: var(--surface-color);
-  height: 80vh;
-  overflow-y: auto;
-  padding: 40px 20px;
-  border-radius: 10px;
+  height: 100%; /* Fill the available space in <main> */
+  overflow-y: auto; /* This is now the ONLY scrolling element */
+  padding: 20px 40px;
   text-align: center;
-  
-  /* Hide the scrollbar for a cleaner look */
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none; scrollbar-width: none;
 }
-
-.lyrics-container::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, and Opera */
-}
-
-.lyric-line {
-  margin: 0;
-  padding: 15px 0;
-  font-size: 1.8rem;
-  font-weight: 500;
-  line-height: 1.6;
-  opacity: 0.4;
-  transition: all 0.3s ease-in-out;
-}
-
-/* Lines that have already been sung */
-.lyric-line.passed {
-  opacity: 0.2;
-  font-size: 1.2rem;
-}
-
-/* The currently active line */
-.lyric-line.active {
-  color: var(--primary-color);
-  opacity: 1;
-  font-weight: 700;
-  transform: scale(1.05);
-  text-shadow: 0 0 10px rgba(29, 185, 84, 0.5);
-}
-
-/* Styling for non-synced lyrics */
-.static-lyrics {
-  white-space: pre-wrap; /* Allows wrapping */
-  font-size: 1.1rem;
-  text-align: center;
-  line-height: 1.8;
-  font-family: 'Roboto Mono', monospace;
-  color: var(--text-color-secondary);
-  padding: 40px 0;
-}
-
-/* Add/modify these rules in src/components/LyricsViewer.css */
-
-.lyric-line {
-  margin: 0;
-  padding: 15px 0;
-  font-size: 1.8rem;
-  font-weight: 500;
-  line-height: 1.6;
-  opacity: 0.4;
-  transition: all 0.3s ease-in-out;
-  cursor: pointer; /* <-- MAKE LYRICS CLICKABLE */
-  border-radius: 8px; /* Add radius for hover effect */
-}
-
-.lyric-line:hover {
-    background-color: rgba(255, 255, 255, 0.05); /* Subtle highlight on hover */
-}
-
-/* The rest of the file remains the same... */
+.lyrics-container::-webkit-scrollbar { display: none; }
+.lyric-line { margin: 0; padding: 15px 0; font-size: 1.8rem; font-weight: 500; line-height: 1.6; opacity: 0.4; transition: all 0.3s ease-in-out; cursor: pointer; border-radius: 8px; }
+.lyric-line:hover { background-color: rgba(255, 255, 255, 0.05); }
+.lyric-line.passed { opacity: 0.2; font-size: 1.2rem; }
+.lyric-line.active { color: var(--primary-color); opacity: 1; font-weight: 700; transform: scale(1.05); }
+.static-lyrics { white-space: pre-wrap; font-size: 1.1rem; text-align: center; line-height: 1.8; color: var(--text-color-secondary); padding: 40px 0; }
