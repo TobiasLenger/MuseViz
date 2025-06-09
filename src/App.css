@@ -1,3 +1,5 @@
+/* File: src/App.css */
+
 /* Add your preferred fonts */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&family=Roboto+Mono&display=swap');
 
@@ -31,7 +33,99 @@ body {
   font-size: 3rem;
   color: var(--primary-color);
   margin: 0;
+  font-weight: 700;
 }
 
-/* Add other styles for search form, results, loader, etc. */
-/* The CodeSandbox demo has more complete styling. */
+/* --- Search Form Styles --- */
+.search-form {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 30px;
+}
+
+.search-form input {
+  flex-grow: 1;
+  padding: 12px 15px;
+  font-size: 1rem;
+  border-radius: 50px;
+  border: 1px solid #333;
+  background-color: var(--surface-color);
+  color: var(--text-color);
+  transition: border-color 0.2s;
+}
+
+.search-form input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+.search-form button {
+  padding: 12px 25px;
+  font-size: 1rem;
+  font-weight: 700;
+  border-radius: 50px;
+  border: none;
+  background-color: var(--primary-color);
+  color: var(--text-color);
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.search-form button:hover {
+  background-color: #1ed760;
+}
+
+.search-form button:disabled {
+  background-color: #555;
+  cursor: not-allowed;
+}
+
+/* --- YouTube Search Results Grid --- */
+.search-results {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.result-item {
+  background-color: var(--surface-color);
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.result-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+}
+
+.result-item img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  display: block;
+}
+
+.result-item p {
+  padding: 15px;
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 500;
+  line-height: 1.4;
+  /* Truncate long titles */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* --- Loader and Status Text --- */
+.loader {
+  text-align: center;
+  padding: 40px;
+  font-size: 1.2rem;
+  color: var(--text-color-secondary);
+}
