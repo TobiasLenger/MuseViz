@@ -1,4 +1,4 @@
-/* File: src/App.css (Corrected Centering) */
+/* File: src/App.css (Corrected Layout) */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&family=Roboto+Mono&display=swap');
 
 :root {
@@ -11,7 +11,6 @@
   --header-height: 80px;
 }
 
-/* --- THIS IS THE KEY FIX --- */
 body, html {
   margin: 0;
   padding: 0;
@@ -20,11 +19,6 @@ body, html {
   background-color: var(--background-color);
   color: var(--text-color);
   font-family: 'Poppins', sans-serif;
-  
-  /* Restore flexbox centering for the main .App container */
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
 
 .App {
@@ -32,8 +26,9 @@ body, html {
   flex-direction: column;
   height: 100vh;
   width: 100%;
-  max-width: 800px;
-  margin: 0 auto;
+  max-width: 800px; /* This is the key to prevent it from getting too wide */
+  margin: 0 auto;  /* This centers the container on the page */
+  box-sizing: border-box;
 }
 
 header {
@@ -50,6 +45,7 @@ header {
   width: 100%;
   z-index: 10;
   background-color: var(--background-color);
+  filter: blur(10px);
 }
 
 header h1 {
