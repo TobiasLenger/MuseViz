@@ -1,12 +1,21 @@
 /* File: src/components/PlaybackControls.css */
-.playback-controls { max-width: 800px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 20px; background-color: transparent; padding: 10px 20px; height: 100%; box-sizing: border-box; }
+.playback-controls {
+  max-width: 800px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  background-color: transparent;
+  padding: 10px 20px;
+}
 .main-controls { flex-shrink: 0; }
 .control-button {
   background-color: var(--text-color);
   color: #000;
   border: none;
-  width: 36px;  /* <-- Corrected Size */
-  height: 36px; /* <-- Corrected Size */
+  width: 80px;  /* <-- Increased Size */
+  height: 80px; /* <-- Increased Size */
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -22,3 +31,4 @@ input[type="range"]::before { content: ''; height: 6px; background: var(--primar
 .progress-slider::before { width: var(--progress-percent, 0%); }
 .volume-slider::before { width: var(--volume-percent, 50%); }
 input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 16px; height: 16px; background: var(--text-color); border-radius: 50%; border: none; margin-top: -5px; position: relative; z-index: 3; }
+input[type="range"]::-moz-range-thumb { width: 16px; height: 16px; background: var(--text-color); border-radius: 50%; border: none; position: relative; z-index: 3; }
