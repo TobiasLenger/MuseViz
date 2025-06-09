@@ -6,8 +6,8 @@ import { fetchLyrics } from './api/lyricsApi';
 
 import Player from './components/Player';
 import LyricsViewer from './components/LyricsViewer';
-import './App.css';
 import PlaybackControls from './components/PlaybackControls';
+import './App.css';
 
 function App() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -34,7 +34,6 @@ function App() {
   const onPlayerStateChange = (event) => { clearInterval(intervalRef.current); if (event.data === 0) { setIsPlaying(false); setIsSongFinished(true); } else if (event.data === 1) { setIsPlaying(true); setIsSongFinished(false); setDuration(playerRef.current.getDuration()); intervalRef.current = setInterval(() => { setCurrentTime(playerRef.current.getCurrentTime()); }, 250); } else { setIsPlaying(false); } };
   const handleSearch = async (e) => { e.preventDefault(); if (!searchTerm) return; setIsLoading(true); setRecommendations([]); setSearchResults(await searchYouTube(searchTerm)); setIsLoading(false); };
   
-  // --- THIS IS THE CORRECTED FUNCTION ---
   const handleSelectVideo = async (video) => {
     setIsSongFinished(false);
     setSelectedVideo(video);
@@ -43,7 +42,6 @@ function App() {
     setLyricsData(null);
     setRecommendations([]);
 
-    // Step 1: Reliably parse the artist and title first.
     const youtubeTitle = video.snippet.title;
     const titleParts = youtubeTitle.split(' - ');
     let artist, songTitle;
@@ -57,20 +55,16 @@ function App() {
     }
     const cleanedSongTitle = songTitle.replace(/\[.*?\]/g, '').replace(/\(.*?\)/g, '').trim();
 
-    // Step 2: Fetch lyrics and recommendations in parallel with the correct data.
     const lyricsPromise = fetchLyrics(artist, cleanedSongTitle);
     const relatedPromise = getRelatedVideos(video.id.videoId);
     
-    // Step 3: Wait for both to complete.
     try {
       const [lyricsResult, relatedResult] = await Promise.all([lyricsPromise, relatedPromise]);
       setLyricsData(lyricsResult);
       setRecommendations(relatedResult);
     } catch (error) {
       console.error("Failed to fetch lyrics or recommendations:", error);
-      // Even if it fails, we should stop the loading spinner
     }
-
     setIsLoading(false);
   };
   
@@ -82,6 +76,10 @@ function App() {
         <h1>LyricSync</h1>
         {selectedVideo && !isSongFinished && <button onClick={handleStopPlayback} className="stop-button">New Search</button>}
       </header>
+      
+      {/* The hidden YouTube player can stay here */}
+      {selectedVideo && <Player videoId={selectedVideo.id.videoId} onReady={onPlayerReady} onStateChange={onPlayerStateChange} />}
+
       <main>
         {(!selectedVideo || isSongFinished) && (
           <form onSubmit={handleSearch} className="search-form">
@@ -90,33 +88,33 @@ function App() {
           </form>
         )}
         {searchResults.length > 0 && <div className="search-results">{searchResults.map((video) => (<div key={video.id.videoId} className="result-item" onClick={() => handleSelectVideo(video)}><img src={video.snippet.thumbnails.default.url} alt={video.snippet.title} /><p>{video.snippet.title}</p></div>))}</div>}
-        {selectedVideo && (
+        
+        {selectedVideo && !isSongFinished && lyricsData && <LyricsViewer lyricsData={lyricsData} currentTime={currentTime} onSeek={handleSeek} />}
+        
+        {selectedVideo && isSongFinished && (
           <>
-            <h2 className="current-song-title">{selectedVideo.snippet.title}</h2>
-            <Player videoId={selectedVideo.id.videoId} onReady={onPlayerReady} onStateChange={onPlayerStateChange} />
-            {isSongFinished && (
-              <>
-                <div className="replay-container"><button onClick={handleReplay} className="replay-button">Replay</button></div>
-                {recommendations.length > 0 && (
-                  <div className="recommendations-container">
-                    <h3 className="recommendations-title">Up Next...</h3>
-                    <div className="search-results">
-                      {recommendations.map((rec) => (<div key={rec.id.videoId} className="result-item" onClick={() => handleSelectVideo(rec)}><img src={rec.snippet.thumbnails.default.url} alt={rec.snippet.title} /><p>{rec.snippet.title}</p></div>))}</div>
-                    </div>
-                  </div>
-                )}
-              </>
-            )}
-            {!isSongFinished && (
-              <>
-                <PlaybackControls isPlaying={isPlaying} onPlayPause={handlePlayPause} currentTime={currentTime} duration={duration} onSeek={handleSeek} volume={volume} onVolumeChange={handleVolumeChange} />
-                {lyricsData && <LyricsViewer lyricsData={lyricsData} currentTime={currentTime} onSeek={handleSeek} />}
-              </>
+            <div className="replay-container"><button onClick={handleReplay} className="replay-button">Replay</button></div>
+            {recommendations.length > 0 && (
+              <div className="recommendations-container">
+                <h3 className="recommendations-title">Up Next...</h3>
+                <div className="search-results">
+                  {recommendations.map((rec) => (<div key={rec.id.videoId} className="result-item" onClick={() => handleSelectVideo(rec)}><img src={rec.snippet.thumbnails.default.url} alt={rec.snippet.title} /><p>{rec.snippet.title}</p></div>))}
+                </div>
+              </div>
             )}
           </>
         )}
+        
         {isLoading && !lyricsData && <div className="loader">Loading...</div>}
       </main>
+
+      {/* --- CONTROLS MOVED TO A STICKY FOOTER --- */}
+      {selectedVideo && !isSongFinished && (
+        <footer className="sticky-controls-footer">
+          <h2 className="current-song-title">{selectedVideo.snippet.title}</h2>
+          <PlaybackControls isPlaying={isPlaying} onPlayPause={handlePlayPause} currentTime={currentTime} duration={duration} onSeek={handleSeek} volume={volume} onVolumeChange={handleVolumeChange} />
+        </footer>
+      )}
     </div>
   );
 }
