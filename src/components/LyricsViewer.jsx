@@ -3,10 +3,9 @@
 import React, { useRef, useEffect } from 'react';
 import './LyricsViewer.css';
 
-const LyricsViewer = ({ lyricsData, currentTime, onSeek }) => { // <-- Accept onSeek prop
+const LyricsViewer = ({ lyricsData, currentTime, onSeek }) => {
   const activeLineRef = useRef(null);
 
-  // Calculate activeIndex inside the component
   let activeIndex = -1;
   const areLyricsSynced = lyricsData?.synced && Array.isArray(lyricsData.lyrics) && lyricsData.lyrics.length > 0;
 
@@ -18,7 +17,6 @@ const LyricsViewer = ({ lyricsData, currentTime, onSeek }) => { // <-- Accept on
     });
   }
 
-  // Scroll effect still depends on activeIndex
   useEffect(() => {
     if (activeLineRef.current) {
       activeLineRef.current.scrollIntoView({
@@ -35,16 +33,22 @@ const LyricsViewer = ({ lyricsData, currentTime, onSeek }) => { // <-- Accept on
   if (areLyricsSynced) {
     return (
       <div className="lyrics-container">
-        {lyricsData.lyrics.map((line, index) => (
-          <p
-            key={index}
-            ref={index === activeIndex ? activeLineRef : null}
-            className={`lyric-line ${index === activeIndex ? 'active' : ''} ${index < activeIndex ? 'passed' : ''}`}
-            onClick={() => onSeek(line.time)} // <-- ADDED ONCLICK HANDLER
-          >
-            {line.text}
-          </p>
-        ))}
+        {lyricsData.lyrics.map((line, index) => {
+          // --- THIS IS THE FIX ---
+          // Define the seek time with a small negative offset (e.g., 300ms)
+          const seekTime = Math.max(0, line.time - 0.3);
+
+          return (
+            <p
+              key={index}
+              ref={index === activeIndex ? activeLineRef : null}
+              className={`lyric-line ${index === activeIndex ? 'active' : ''} ${index < activeIndex ? 'passed' : ''}`}
+              onClick={() => onSeek(seekTime)} // Use the new seekTime
+            >
+              {line.text}
+            </p>
+          );
+        })}
       </div>
     );
   }

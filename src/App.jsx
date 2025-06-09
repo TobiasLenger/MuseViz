@@ -36,7 +36,22 @@ function App() {
   };
 
   const handlePlayPause = () => { if (!playerRef.current) return; if (isPlaying) { playerRef.current.pauseVideo(); } else { playerRef.current.playVideo(); } };
-  const handleSeek = (newTime) => { if (!playerRef.current) return; const time = Number(newTime); playerRef.current.seekTo(time, true); setCurrentTime(time); if (!isPlaying) { playerRef.current.playVideo(); }};
+  const handleSeek = (newTime) => {
+  if (!playerRef.current) return;
+  
+  const time = Number(newTime);
+  
+  // 1. Seek the actual player
+  playerRef.current.seekTo(time, true);
+  
+  // 2. Immediately update our state to make the UI feel instant
+  setCurrentTime(time);
+  
+  // 3. If paused, start playing. This is the expected user behavior.
+  if (!isPlaying) {
+    playerRef.current.playVideo();
+  }
+};
   const handleVolumeChange = (newVolume) => { if (!playerRef.current) return; const vol = Number(newVolume); setVolume(vol); playerRef.current.setVolume(vol); };
   const handleReplay = () => { if (!playerRef.current) return; setIsSongFinished(false); playerRef.current.seekTo(0, true); playerRef.current.playVideo(); };
   const onPlayerReady = (event) => { playerRef.current = event.target; playerRef.current.setVolume(volume); setDuration(playerRef.current.getDuration()); };
