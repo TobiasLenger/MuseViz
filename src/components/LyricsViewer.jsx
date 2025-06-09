@@ -6,7 +6,9 @@ import './LyricsViewer.css';
 const LyricsViewer = ({ lyricsData, currentTime }) => {
   const activeLineRef = useRef(null);
 
-  // Auto-scroll logic to keep the active line centered
+  // --- THIS IS THE FIX ---
+  // The scroll effect should only run when the activeIndex changes,
+  // not on every single update of currentTime.
   useEffect(() => {
     if (activeLineRef.current) {
       activeLineRef.current.scrollIntoView({
@@ -14,8 +16,9 @@ const LyricsViewer = ({ lyricsData, currentTime }) => {
         block: 'center',
       });
     }
-  }, [currentTime]); // Using currentTime to ensure it stays centered as the song plays
+  }, [activeIndex]); // <-- Changed dependency from [currentTime] to [activeIndex]
 
+  // The rest of the component remains exactly the same.
   if (!lyricsData || !lyricsData.lyrics) {
     return <div className="lyrics-container"><div className="loader">Search for a song to see lyrics.</div></div>;
   }
@@ -32,7 +35,6 @@ const LyricsViewer = ({ lyricsData, currentTime }) => {
     });
   }
 
-  // Render synced lyrics with the original karaoke-style animation
   if (areLyricsSynced) {
     return (
       <div className="lyrics-container">
@@ -49,7 +51,6 @@ const LyricsViewer = ({ lyricsData, currentTime }) => {
     );
   }
 
-  // Render unsynced or error lyrics as static text
   if (typeof lyrics === 'string') {
     return (
       <div className="lyrics-container">
@@ -58,7 +59,6 @@ const LyricsViewer = ({ lyricsData, currentTime }) => {
     );
   }
 
-  // Fallback
   return (
     <div className="lyrics-container">
       <div className="loader">Lyrics are available but could not be displayed.</div>
