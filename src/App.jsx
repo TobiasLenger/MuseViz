@@ -1,4 +1,4 @@
-// File: src/App.jsx (Corrected Logic)
+// File: src/App.jsx (Corrected Dev Menu Logic)
 
 import React, { useState, useRef, useEffect } from 'react';
 import { searchYouTube, getRelatedVideos } from './api/youtubeApi';
@@ -34,44 +34,64 @@ function App() {
   const intervalRef = useRef(null);
 
   useEffect(() => { const handleKeyDown = (e) => { if (e.ctrlKey && e.shiftKey && e.key === 'D') { e.preventDefault(); setIsDevMenuOpen(prev => !prev); } }; window.addEventListener('keydown', handleKeyDown); return () => window.removeEventListener('keydown', handleKeyDown); }, []);
-  const handleFileChange = (e) => { const file = e.target.files[0]; if (file) { setLocalFileUrl(URL.createObjectURL(file)); setLocalFileName(file.name); } };
-  const handleLrcFileChange = (e) => { const file = e.target.files[0]; if (!file) return; setLocalLrcFileName(file.name); const reader = new FileReader(); reader.onload = (event) => setLocalLrcText(event.target.result); reader.readAsText(file); };
-  const handleLoadLocal = () => { if (!localFileUrl || !localLrcText) { alert("Please provide both an MP3 and LRC file."); return; } handleStopPlayback(); setPlayerType('local'); setSelectedVideo({ snippet: { title: localFileName.replace('.mp3', ''), thumbnails: { default: { url: '' } } } }); setLyricsData({ synced: true, lyrics: parseLRC(localLrcText) }); setIsDevMenuOpen(false); };
-  const handleStopPlayback = () => { if (playerRef.current) playerRef.current.stopVideo?.(); if (localAudioRef.current) localAudioRef.current.pause(); setPlayerType('youtube'); setSelectedVideo(null); setLyricsData(null); setIsSongFinished(false); setSearchResults([]); setRecommendations([]); setSearchTerm(""); if (localFileUrl) { URL.revokeObjectURL(localFileUrl); setLocalFileUrl(null); }};
   
-  const handlePlayPause = () => {
-    if (playerType === 'youtube' && playerRef.current) {
-      const playerState = playerRef.current.getPlayerState();
-      if (playerState === 1) playerRef.current.pauseVideo(); else playerRef.current.playVideo();
-    } else if (playerType === 'local' && localAudioRef.current) {
-      if (localAudioRef.current.paused) localAudioRef.current.play(); else localAudioRef.current.pause();
-    }
+  const handleFileChange = (e) => { const file = e.target.files[0]; if (file) { setLocalFileUrl(URL.createObjectURL(file)); setLocalFileName(file.name); } };
+  const handleLrcFileChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setLocalLrcFileName(file.name);
+    const reader = new FileReader();
+    reader.onload = (event) => setLocalLrcText(event.target.result);
+    reader.readAsText(file);
   };
-
+  
+  const handleLoadLocal = () => { if (!localFileUrl || !localLrcText) { alert("Please provide both an MP3 and LRC file."); return; } handleStopPlayback(); setPlayerType('local'); setSelectedVideo({ snippet: { title: localFileName.replace('.mp3', ''), thumbnails: { default: { url: '' } } } }); setLyricsData({ synced: true, lyrics: parseLRC(localLrcText) }); setIsDevMenuOpen(false); };
+  
+  const handleStopPlayback = () => {
+    if (playerRef.current) playerRef.current.stopVideo?.();
+    if (localAudioRef.current) localAudioRef.current.pause();
+    setPlayerType('youtube'); setSelectedVideo(null); setLyricsData(null); setIsSongFinished(false); setSearchResults([]); setRecommendations([]); setSearchTerm("");
+    if (localFileUrl) { URL.revokeObjectURL(localFileUrl); setLocalFileUrl(null); }
+  };
+  
+  const handlePlayPause = () => { if (playerType === 'youtube' && playerRef.current) { const playerState = playerRef.current.getPlayerState(); if (playerState === 1) playerRef.current.pauseVideo(); else playerRef.current.playVideo(); } else if (playerType === 'local' && localAudioRef.current) { if (localAudioRef.current.paused) localAudioRef.current.play(); else localAudioRef.current.pause(); } };
   const handleSeek = (newTime) => { const time = Number(newTime); setCurrentTime(time); if (playerType === 'youtube' && playerRef.current) { playerRef.current.seekTo(time, true); } else if (playerType === 'local' && localAudioRef.current) { localAudioRef.current.currentTime = time; } if (!isPlaying) { if (playerType === 'youtube') { playerRef.current.playVideo(); } else { localAudioRef.current.play(); } } };
   const handleVolumeChange = (newVolume) => { const vol = Number(newVolume); setVolume(vol); if (playerType === 'youtube' && playerRef.current) { playerRef.current.setVolume(vol); } else if (playerType === 'local' && localAudioRef.current) { localAudioRef.current.volume = vol / 100; } };
   const handleReplay = () => handleSeek(0);
+  
   const onPlayerReady = (event) => { playerRef.current = event.target; playerRef.current.setVolume(volume); };
   const onPlayerStateChange = (event) => { clearInterval(intervalRef.current); if (event.data === 0) { setIsPlaying(false); setIsSongFinished(true); } else if (event.data === 1) { setIsPlaying(true); setIsSongFinished(false); setDuration(playerRef.current.getDuration()); intervalRef.current = setInterval(() => { setCurrentTime(playerRef.current.getCurrentTime()); }, 250); } else { setIsPlaying(false); } };
+  
   const handleSearch = async (e) => { e.preventDefault(); if (!searchTerm) return; setIsLoading(true); setRecommendations([]); setSearchResults(await searchYouTube(searchTerm)); setIsLoading(false); };
   const handleSelectVideo = async (video) => { handleStopPlayback(); setPlayerType('youtube'); setIsSongFinished(false); setSelectedVideo(video); setSearchResults([]); setIsLoading(true); setLyricsData(null); setRecommendations([]); const youtubeTitle = video.snippet.title; const titleParts = youtubeTitle.split(' - '); let artist, songTitle; if (titleParts.length >= 2) { artist = titleParts[0].trim(); songTitle = titleParts.slice(1).join(' - ').trim(); } else { artist = video.snippet.channelTitle.replace(' - Topic', '').trim(); songTitle = youtubeTitle.trim(); } const cleanedSongTitle = songTitle.replace(/\[.*?\]/g, '').replace(/\(.*?\)/g, '').trim(); const lyricsPromise = fetchLyrics(artist, cleanedSongTitle); const relatedPromise = getRelatedVideos(video.id.videoId); try { const [lyricsResult, relatedResult] = await Promise.all([lyricsPromise, relatedPromise]); setLyricsData(lyricsResult); setRecommendations(relatedResult); } catch (error) { console.error("Failed to fetch data:", error); } setIsLoading(false); };
+  
   useEffect(() => { return () => clearInterval(intervalRef.current); }, []);
+  useEffect(() => { const audio = localAudioRef.current; if (playerType === 'local' && audio) { const handleCanPlay = () => { setDuration(audio.duration); audio.play().catch(e => console.error("Playback failed:", e)); clearInterval(intervalRef.current); intervalRef.current = setInterval(() => { setCurrentTime(audio.currentTime); }, 250); }; audio.addEventListener('canplay', handleCanPlay); return () => audio.removeEventListener('canplay', handleCanPlay); } }, [localFileUrl, playerType]);
 
   return (
     <div className="App">
-      <DevMenu isOpen={isDevMenuOpen} onClose={() => setIsDevMenuOpen(false)} onFileChange={handleFileChange} onLrcFileChange={handleLrcFileChange} onLoadLocal={handleLoadLocal} localFileName={localFileName} localLrcFileName={localLrcFileName} />
+      <DevMenu
+        isOpen={isDevMenuOpen}
+        onClose={() => setIsDevMenuOpen(false)}
+        onFileChange={handleFileChange}
+        onLrcFileChange={handleLrcFileChange}
+        onLoadLocal={handleLoadLocal}
+        localFileName={localFileName}
+        localLrcFileName={localLrcFileName}
+        // --- THIS IS THE FIX ---
+        isLoadDisabled={!localFileUrl || !localLrcText}
+      />
+      
       <header className={`App-header ${selectedVideo ? 'condensed' : ''}`}>
         <h1>LyricSync</h1>
         {selectedVideo && !isSongFinished && <button onClick={handleStopPlayback} className="stop-button">New Search</button>}
       </header>
       
       {selectedVideo && playerType === 'youtube' && <Player videoId={selectedVideo.id.videoId} onReady={onPlayerReady} onStateChange={onPlayerStateChange} />}
-      {selectedVideo && playerType === 'local' && (
-        <audio ref={localAudioRef} src={localFileUrl} onTimeUpdate={(e) => setCurrentTime(e.target.currentTime)} onLoadedMetadata={(e) => { setDuration(e.target.duration); e.target.play(); }} onPlay={() => setIsPlaying(true)} onPause={() => setIsPlaying(false)} onEnded={() => setIsSongFinished(true)} onVolumeChange={(e) => setVolume(e.target.volume * 100)} style={{ display: 'none' }} />
-      )}
+      {selectedVideo && playerType === 'local' && <audio ref={localAudioRef} src={localFileUrl} onPlay={() => setIsPlaying(true)} onPause={() => setIsPlaying(false)} onEnded={() => setIsSongFinished(true)} onVolumeChange={(e) => setVolume(e.target.volume * 100)} style={{ display: 'none' }} />}
 
       <main>
-        {(!selectedVideo && !isSongFinished) && (
+        {(!selectedVideo || isSongFinished) && (
           <div className="search-container">
             <form onSubmit={handleSearch} className="search-form">
               <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Search for a song..." disabled={isLoading} />
@@ -95,6 +115,8 @@ function App() {
             )}
           </div>
         )}
+        
+        {isLoading && !selectedVideo && <div className="loader">Loading...</div>}
       </main>
 
       {selectedVideo && !isSongFinished && (
