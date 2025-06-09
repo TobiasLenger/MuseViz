@@ -14,8 +14,8 @@
   background-color: var(--text-color);
   color: #000;
   border: none;
-  width: 48px;  /* <-- Increased Size */
-  height: 48px; /* <-- Increased Size */
+  width: 80px;  /* <-- Increased Size */
+  height: 80px; /* <-- Increased Size */
   border-radius: 50%;
   display: flex;
   align-items: center;
