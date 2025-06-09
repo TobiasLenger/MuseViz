@@ -1,10 +1,10 @@
 import React, { useRef, useEffect } from 'react';
-import './LyricsViewer.css';
+import './LyricsViewer.css'; // We'll create this file for styling
 
 const LyricsViewer = ({ lyricsData, currentTime }) => {
   const activeLineRef = useRef(null);
 
-  if (!lyricsData || typeof lyricsData.lyrics !== 'string' && !Array.isArray(lyricsData.lyrics)) {
+  if (!lyricsData || !lyricsData.lyrics) {
     return <div className="lyrics-container"><p>Search for a song to see lyrics.</p></div>;
   }
 
@@ -29,10 +29,18 @@ const LyricsViewer = ({ lyricsData, currentTime }) => {
     }
   }, [activeIndex]);
 
- return (
+  return (
     <div className="lyrics-container">
       {synced ? (
-        // ...
+        lyrics.map((line, index) => (
+          <p
+            key={index}
+            ref={index === activeIndex ? activeLineRef : null}
+            className={`lyric-line ${index === activeIndex ? 'active' : ''} ${index < activeIndex ? 'passed' : ''}`}
+          >
+            {line.text}
+          </p>
+        ))
       ) : (
         <pre className="static-lyrics">{lyrics}</pre>
       )}
