@@ -16,7 +16,7 @@ body, html {
   justify-content: center;
   align-items: center;
 }
-.App { display: flex; flex-direction: column; height: 100vh; max-width: 800px; margin: 0 auto; }
+.App { display: flex; flex-direction: column; height: 100vh; max-width: 800px; margin: 0 auto;  }
 header { flex-shrink: 0; text-align: center; padding: 20px; transition: all 0.4s ease-in-out; position: relative; display: flex; align-items: center; justify-content: center; }
 header h1 { 
   font-size: 2.5rem; 
