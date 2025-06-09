@@ -1,4 +1,4 @@
-// File: src/App.jsx
+// File: src/App.jsx (Corrected Logic)
 
 import React, { useState, useRef, useEffect } from 'react';
 import { searchYouTube, getRelatedVideos } from './api/youtubeApi';
@@ -38,7 +38,16 @@ function App() {
   const handleLrcFileChange = (e) => { const file = e.target.files[0]; if (!file) return; setLocalLrcFileName(file.name); const reader = new FileReader(); reader.onload = (event) => setLocalLrcText(event.target.result); reader.readAsText(file); };
   const handleLoadLocal = () => { if (!localFileUrl || !localLrcText) { alert("Please provide both an MP3 and LRC file."); return; } handleStopPlayback(); setPlayerType('local'); setSelectedVideo({ snippet: { title: localFileName.replace('.mp3', ''), thumbnails: { default: { url: '' } } } }); setLyricsData({ synced: true, lyrics: parseLRC(localLrcText) }); setIsDevMenuOpen(false); };
   const handleStopPlayback = () => { if (playerRef.current) playerRef.current.stopVideo?.(); if (localAudioRef.current) localAudioRef.current.pause(); setPlayerType('youtube'); setSelectedVideo(null); setLyricsData(null); setIsSongFinished(false); setSearchResults([]); setRecommendations([]); setSearchTerm(""); if (localFileUrl) { URL.revokeObjectURL(localFileUrl); setLocalFileUrl(null); }};
-  const handlePlayPause = () => { if (playerType === 'youtube' && playerRef.current) { const playerState = playerRef.current.getPlayerState(); if (playerState === 1) playerRef.current.pauseVideo(); else playerRef.current.playVideo(); } else if (playerType === 'local' && localAudioRef.current) { if (localAudioRef.current.paused) localAudioRef.current.play(); else localAudioRef.current.pause(); }};
+  
+  const handlePlayPause = () => {
+    if (playerType === 'youtube' && playerRef.current) {
+      const playerState = playerRef.current.getPlayerState();
+      if (playerState === 1) playerRef.current.pauseVideo(); else playerRef.current.playVideo();
+    } else if (playerType === 'local' && localAudioRef.current) {
+      if (localAudioRef.current.paused) localAudioRef.current.play(); else localAudioRef.current.pause();
+    }
+  };
+
   const handleSeek = (newTime) => { const time = Number(newTime); setCurrentTime(time); if (playerType === 'youtube' && playerRef.current) { playerRef.current.seekTo(time, true); } else if (playerType === 'local' && localAudioRef.current) { localAudioRef.current.currentTime = time; } if (!isPlaying) { if (playerType === 'youtube') { playerRef.current.playVideo(); } else { localAudioRef.current.play(); } } };
   const handleVolumeChange = (newVolume) => { const vol = Number(newVolume); setVolume(vol); if (playerType === 'youtube' && playerRef.current) { playerRef.current.setVolume(vol); } else if (playerType === 'local' && localAudioRef.current) { localAudioRef.current.volume = vol / 100; } };
   const handleReplay = () => handleSeek(0);
@@ -51,8 +60,7 @@ function App() {
   return (
     <div className="App">
       <DevMenu isOpen={isDevMenuOpen} onClose={() => setIsDevMenuOpen(false)} onFileChange={handleFileChange} onLrcFileChange={handleLrcFileChange} onLoadLocal={handleLoadLocal} localFileName={localFileName} localLrcFileName={localLrcFileName} />
-      
-      <header className={`App-header ${selectedVideo ? 'sticky condensed' : ''}`}>
+      <header className={`App-header ${selectedVideo ? 'condensed' : ''}`}>
         <h1>LyricSync</h1>
         {selectedVideo && !isSongFinished && <button onClick={handleStopPlayback} className="stop-button">New Search</button>}
       </header>
@@ -63,7 +71,7 @@ function App() {
       )}
 
       <main>
-        {(!selectedVideo || isSongFinished) && (
+        {(!selectedVideo && !isSongFinished) && (
           <div className="search-container">
             <form onSubmit={handleSearch} className="search-form">
               <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Search for a song..." disabled={isLoading} />
@@ -76,7 +84,7 @@ function App() {
         
         {selectedVideo && !isSongFinished && lyricsData && <LyricsViewer lyricsData={lyricsData} currentTime={currentTime} onSeek={handleSeek} />}
         
-        {selectedVideo && isSongFinished && (
+        {isSongFinished && (
           <div className="post-song-container">
             <div className="replay-container"><button onClick={handleReplay} className="replay-button">Replay</button></div>
             {recommendations.length > 0 && (
@@ -87,13 +95,20 @@ function App() {
             )}
           </div>
         )}
-        
-        {isLoading && !selectedVideo && <div className="loader">Loading...</div>}
       </main>
 
       {selectedVideo && !isSongFinished && (
         <footer className="playback-footer">
-          <PlaybackControls isPlaying={isPlaying} onPlayPause={handlePlayPause} currentTime={currentTime} duration={duration} onSeek={handleSeek} volume={volume} onVolumeChange={handleVolumeChange} songTitle={selectedVideo.snippet.title} />
+          <PlaybackControls
+            isPlaying={isPlaying}
+            onPlayPause={handlePlayPause}
+            currentTime={currentTime}
+            duration={duration}
+            onSeek={handleSeek}
+            volume={volume}
+            onVolumeChange={handleVolumeChange}
+            songTitle={selectedVideo.snippet.title}
+          />
         </footer>
       )}
     </div>

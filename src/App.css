@@ -1,4 +1,4 @@
-/* File: src/App.css (Final Layout Overhaul) */
+/* File: src/App.css (Definitive Layout Fix) */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&family=Roboto+Mono&display=swap');
 
 :root {
@@ -15,40 +15,38 @@ body, html {
   margin: 0;
   padding: 0;
   height: 100%;
-  overflow: hidden; /* Prevent the whole page from scrolling */
+  overflow: hidden; /* Prevent the entire page from ever scrolling */
   background-color: var(--background-color);
   color: var(--text-color);
   font-family: 'Poppins', sans-serif;
 }
 
-/* --- THE KEY LAYOUT FIX --- */
+/* --- The Core Grid Layout --- */
 .App {
   display: grid;
-  /* Define 3 rows: header, main content (stretchy), footer */
+  /* Define 3 rows: a fixed header, a stretchy main area, and a fixed footer */
   grid-template-rows: var(--header-height) 1fr var(--footer-height);
-  height: 100vh; /* Make the app take the full viewport height */
+  height: 100vh;
   width: 100%;
   max-width: 800px;
-  margin: 0 auto;
+  margin: 0 auto; /* This centers the whole grid container */
   box-sizing: border-box;
 }
 
 header {
-  grid-row: 1 / 2; /* Place in the first grid row */
+  grid-row: 1; /* Place in the first row */
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
   padding: 0 20px;
-  transition: all 0.4s ease-in-out;
+  width: 100%;
+  z-index: 10;
+  background-color: var(--background-color); /* Ensures header isn't transparent */
 }
 
 header h1 {
-  font-size: 2.5rem;
-  color: var(--primary-color);
-  margin: 0;
-  font-weight: 700;
-  transition: font-size 0.4s ease-in-out;
+  font-size: 2.5rem; color: var(--primary-color); margin: 0; font-weight: 700; transition: font-size 0.4s ease-in-out;
 }
 
 header.condensed h1 {
@@ -56,46 +54,30 @@ header.condensed h1 {
 }
 
 .stop-button {
-  position: absolute;
-  right: 20px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: var(--surface-color);
-  color: var(--text-color-secondary);
-  border: 1px solid #333;
-  font-size: 0.9rem;
-  padding: 8px 16px;
-  border-radius: 50px;
-  cursor: pointer;
-  transition: all 0.2s ease;
+  position: absolute; right: 20px; top: 50%; transform: translateY(-50%); background: var(--surface-color); color: var(--text-color-secondary); border: 1px solid #333; font-size: 0.9rem; padding: 8px 16px; border-radius: 50px; cursor: pointer; transition: all 0.2s ease;
 }
-
-.stop-button:hover {
-  color: var(--text-color);
-  border-color: var(--text-color-secondary);
-}
+.stop-button:hover { color: var(--text-color); border-color: var(--text-color-secondary); }
 
 main {
-  grid-row: 2 / 3; /* Place in the second, stretchy grid row */
-  overflow-y: auto; /* IMPORTANT: This makes the main content scrollable */
+  grid-row: 2; /* Place in the second, stretchy row */
+  overflow-y: auto; /* Make ONLY this area scrollable */
   padding: 0 20px;
   display: flex;
   flex-direction: column;
 }
 
-/* This container will center the initial search bar vertically */
+/* This container will vertically center the initial search form */
 .search-container {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  flex-grow: 1; /* Take up all space in main */
+  flex-grow: 1; /* Make it take up all available space in main */
 }
 
 .search-form { display: flex; gap: 10px; margin-bottom: 30px; }
 .search-form input{flex-grow:1;padding:12px 15px;font-size:1rem;border-radius:50px;border:1px solid #333;background-color:var(--surface-color);color:var(--text-color)}
 .search-results{display:flex;flex-direction:column;gap:10px;margin-bottom:30px}
 .result-item{display:flex;align-items:center;background-color:var(--surface-color);border-radius:12px;padding:10px;cursor:pointer;transition:background-color .2s ease}
-.result-item:hover{background-color:#2a2a2a}
 .result-item img{width:60px;height:60px;border-radius:8px;object-fit:cover;margin-right:15px;flex-shrink:0}
 .result-item p{margin:0;font-size:1rem;font-weight:500}
 .loader{text-align:center;padding:40px;font-size:1.2rem;color:var(--text-color-secondary); margin: auto;}
@@ -104,11 +86,11 @@ main {
 .recommendations-container{margin-top:30px;border-top:1px solid #333;padding-top:30px}
 .recommendations-title{text-align:center;font-size:1.5rem;font-weight:700;color:var(--text-color);margin-bottom:20px}
 
-.playback-footer {
-  grid-row: 3 / 4; /* Place in the third grid row */
-  width: 100%;
+footer.playback-footer {
+  grid-row: 3; /* Place in the third row */
   background-color: #181818;
   border-top: 1px solid #282828;
   z-index: 10;
-  box-sizing: border-box;
+  display: flex;
+  align-items: center;
 }
