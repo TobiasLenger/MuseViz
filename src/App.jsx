@@ -26,24 +26,39 @@ function App() {
     setIsLoading(false);
   };
 
-  const handleSelectVideo = async (video) => {
-    setSelectedVideo(video);
-    setSearchResults([]); // Clear search results
-    setIsLoading(true);
-    setLyricsData(null); // Clear old lyrics
+const handleSelectVideo = async (video) => {
+  setSelectedVideo(video);
+  setSearchResults([]);
+  setIsLoading(true);
+  setLyricsData(null);
+
+  const youtubeTitle = video.snippet.title;
+  const titleParts = youtubeTitle.split(' - ');
+
+  // --- THIS IS THE FIX ---
+  // Check if we successfully split the title into at least two parts
+  if (titleParts.length >= 2) {
+    const artist = titleParts[0].trim();
+    // Join the rest back together in case the song title itself had a '-'
+    const songTitle = titleParts.slice(1).join(' - ').trim();
     
-    // Clean up artist/title for better lyric matching
-    const { title } = video.snippet;
-    const [artist, songTitle] = title.split(' - ');
-    
-    if (artist && songTitle) {
-      const lyrics = await fetchLyrics(artist.trim(), songTitle.trim().replace(/ \(.*\)/, '')); // remove things like (Official Video)
-      setLyricsData(lyrics);
-    } else {
-       setLyricsData({ synced: false, lyrics: "Could not determine artist and title from YouTube." });
-    }
-    setIsLoading(false);
-  };
+    // Clean up title from things like (Official Video)
+    const cleanedSongTitle = songTitle.replace(/\[.*?\]/g, '').replace(/\(.*?\)/g, '').trim();
+
+    const lyrics = await fetchLyrics(artist, cleanedSongTitle);
+    setLyricsData(lyrics);
+  } else {
+    // If we can't parse, show an error message
+    console.error("Could not parse artist and title from:", youtubeTitle);
+    setLyricsData({
+      synced: false,
+      lyrics: `Could not automatically determine the artist and title from the video name:\n"${youtubeTitle}"\n\nPlease try searching for a video with a "Artist - Title" format.`,
+    });
+  }
+  // --- END OF FIX ---
+
+  setIsLoading(false);
+};
   
   // This function is passed to the YouTube component
   const onPlayerReady = (event) => {
