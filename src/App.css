@@ -44,7 +44,7 @@ header {
   justify-content: center;
   width: 100%;
   z-index: 10;
-  background-color: var(--background-color);
+  background-color: #121212a8;
   backdrop-filter: blur(10px);
   border-bottom: 1px solid #333;
 }
