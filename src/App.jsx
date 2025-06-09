@@ -77,7 +77,6 @@ function App() {
         {selectedVideo && !isSongFinished && <button onClick={handleStopPlayback} className="stop-button">New Search</button>}
       </header>
       
-      {/* The hidden YouTube player can stay here */}
       {selectedVideo && <Player videoId={selectedVideo.id.videoId} onReady={onPlayerReady} onStateChange={onPlayerStateChange} />}
 
       <main>
@@ -108,11 +107,12 @@ function App() {
         {isLoading && !lyricsData && <div className="loader">Loading...</div>}
       </main>
 
-      {/* --- CONTROLS MOVED TO A STICKY FOOTER --- */}
       {selectedVideo && !isSongFinished && (
         <footer className="sticky-controls-footer">
-          <h2 className="current-song-title">{selectedVideo.snippet.title}</h2>
-          <PlaybackControls isPlaying={isPlaying} onPlayPause={handlePlayPause} currentTime={currentTime} duration={duration} onSeek={handleSeek} volume={volume} onVolumeChange={handleVolumeChange} />
+            <div className="footer-content-wrapper">
+                <h2 className="current-song-title">{selectedVideo.snippet.title}</h2>
+                <PlaybackControls isPlaying={isPlaying} onPlayPause={handlePlayPause} currentTime={currentTime} duration={duration} onSeek={handleSeek} volume={volume} onVolumeChange={handleVolumeChange} />
+            </div>
         </footer>
       )}
     </div>

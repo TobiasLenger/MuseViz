@@ -8,7 +8,7 @@
   --surface-color: #1e1e1e;
   --text-color: #ffffff;
   --text-color-secondary: #b3b3b3;
-  --footer-height: 120px; /* Define footer height for padding */
+  --footer-height: 120px;
 }
 
 body {
@@ -26,7 +26,6 @@ body {
   box-sizing: border-box;
 }
 
-/* Add padding to main content to avoid being hidden by sticky footer */
 main {
   padding-bottom: var(--footer-height);
 }
@@ -41,21 +40,9 @@ main {
   justify-content: center;
 }
 
-.App-header h1 {
-  font-size: 3rem;
-  color: var(--primary-color);
-  margin: 0;
-  font-weight: 700;
-  transition: font-size 0.4s ease-in-out;
-}
-
-.App-header.condensed {
-  margin-bottom: 20px;
-}
-
-.App-header.condensed h1 {
-  font-size: 1.8rem;
-}
+.App-header h1 { font-size: 3rem; color: var(--primary-color); margin: 0; font-weight: 700; transition: font-size 0.4s ease-in-out; }
+.App-header.condensed { margin-bottom: 20px; }
+.App-header.condensed h1 { font-size: 1.8rem; }
 
 .stop-button {
   position: absolute;
@@ -72,23 +59,7 @@ main {
   transition: all 0.2s ease;
 }
 
-.stop-button:hover {
-  color: var(--text-color);
-  border-color: var(--text-color-secondary);
-}
-
-/* Current song title is now inside the footer */
-.current-song-title {
-  text-align: center;
-  color: var(--text-color);
-  font-size: 1rem;
-  font-weight: 500;
-  margin-bottom: 10px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  padding: 0 20px;
-}
+.stop-button:hover { color: var(--text-color); border-color: var(--text-color-secondary); }
 
 .search-form { display: flex; gap: 10px; margin-bottom: 30px; }
 .search-form input{flex-grow:1;padding:12px 15px;font-size:1rem;border-radius:50px;border:1px solid #333;background-color:var(--surface-color);color:var(--text-color);transition:border-color .2s}
@@ -108,7 +79,6 @@ main {
 .recommendations-container{margin-top:30px;border-top:1px solid #333;padding-top:30px}
 .recommendations-title{text-align:center;font-size:1.5rem;font-weight:700;color:var(--text-color);margin-bottom:20px}
 
-
 /* --- STICKY FOOTER STYLES --- */
 .sticky-controls-footer {
   position: fixed;
@@ -118,13 +88,22 @@ main {
   background-color: #181818;
   border-top: 1px solid #333;
   z-index: 1000;
-  padding: 15px 0;
+  padding: 15px 20px;
   box-sizing: border-box;
 }
 
-/* We put the content in a wrapper to control its max width and centering */
-.sticky-controls-footer > * {
+.footer-content-wrapper {
   max-width: 800px;
-  margin-left: auto;
-  margin-right: auto;
+  margin: 0 auto;
+}
+
+.current-song-title {
+  text-align: center;
+  color: var(--text-color);
+  font-size: 1rem;
+  font-weight: 500;
+  margin-bottom: 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
