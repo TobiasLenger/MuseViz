@@ -5,20 +5,19 @@ import './LyricsViewer.css';
 
 const LyricsViewer = ({ lyricsData, currentTime }) => {
   const activeLineRef = useRef(null);
+  const containerRef = useRef(null);
 
-  // --- THIS IS THE FIX ---
-  // The scroll effect should only run when the activeIndex changes,
-  // not on every single update of currentTime.
+  // Auto-scroll the active line into the center of the view
   useEffect(() => {
     if (activeLineRef.current) {
       activeLineRef.current.scrollIntoView({
         behavior: 'smooth',
         block: 'center',
+        inline: 'nearest'
       });
     }
-  }, [activeIndex]); // <-- Changed dependency from [currentTime] to [activeIndex]
+  }, [currentTime]); // Re-run whenever currentTime changes to keep it centered
 
-  // The rest of the component remains exactly the same.
   if (!lyricsData || !lyricsData.lyrics) {
     return <div className="lyrics-container"><div className="loader">Search for a song to see lyrics.</div></div>;
   }
@@ -35,22 +34,40 @@ const LyricsViewer = ({ lyricsData, currentTime }) => {
     });
   }
 
+  // Render synced lyrics with the wheel effect
   if (areLyricsSynced) {
     return (
-      <div className="lyrics-container">
-        {lyrics.map((line, index) => (
-          <p
-            key={index}
-            ref={index === activeIndex ? activeLineRef : null}
-            className={`lyric-line ${index === activeIndex ? 'active' : ''} ${index < activeIndex ? 'passed' : ''}`}
-          >
-            {line.text}
-          </p>
-        ))}
+      <div className="lyrics-container" ref={containerRef}>
+        {lyrics.map((line, index) => {
+          const distance = index - activeIndex;
+
+          // Determine the class based on distance from the active line
+          let className = 'lyric-line';
+          if (distance === 0) {
+            className += ' active';
+          } else if (distance === 1) {
+            className += ' next-1';
+          } else if (distance === -1) {
+            className += ' prev-1';
+          } else if (distance === 2) {
+            className += ' next-2';
+          } else if (distance === -2) {
+            className += ' prev-2';
+          } else {
+            className += ' distant';
+          }
+          
+          return (
+            <p key={index} className={className} ref={distance === 0 ? activeLineRef : null}>
+              {line.text}
+            </p>
+          );
+        })}
       </div>
     );
   }
 
+  // Render unsynced or error lyrics as static text
   if (typeof lyrics === 'string') {
     return (
       <div className="lyrics-container">
@@ -59,6 +76,7 @@ const LyricsViewer = ({ lyricsData, currentTime }) => {
     );
   }
 
+  // Fallback for unexpected data format
   return (
     <div className="lyrics-container">
       <div className="loader">Lyrics are available but could not be displayed.</div>

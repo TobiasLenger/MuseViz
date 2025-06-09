@@ -18,9 +18,9 @@ body {
   font-family: 'Poppins', sans-serif;
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start; /* Changed from 'center' to 'flex-start' for a top-aligned feel */
   min-height: 100vh;
-  padding: 20px;
+  padding: 40px 20px;
   box-sizing: border-box;
 }
 
@@ -29,18 +29,44 @@ body {
   max-width: 800px;
 }
 
-/* --- Header Styles --- */
+/* --- Header Styles & Animation --- */
 .App-header {
   text-align: center;
-  margin-bottom: 40px;
+  margin-bottom: 40px; /* Default margin */
+  transition: all 0.4s ease-in-out; /* Smooth transition for all properties */
 }
 
 .App-header h1 {
-  font-size: 3rem;
+  font-size: 3rem; /* Default size */
   color: var(--primary-color);
   margin: 0;
   font-weight: 700;
+  transition: font-size 0.4s ease-in-out; /* Smooth transition for font size */
 }
+
+/* Condensed state for the header AFTER a song is selected */
+.App-header.condensed {
+  margin-bottom: 20px; /* Reduced margin */
+}
+
+.App-header.condensed h1 {
+  font-size: 1.8rem; /* Reduced font size */
+}
+
+
+/* --- Current Song Title (New) --- */
+.current-song-title {
+  text-align: center;
+  color: var(--text-color-secondary);
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin-bottom: 20px;
+  /* Truncate if the title is too long */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 
 /* --- Search Form Styles --- */
 .search-form {
@@ -49,91 +75,15 @@ body {
   margin-bottom: 30px;
 }
 
-.search-form input {
-  flex-grow: 1;
-  padding: 12px 15px;
-  font-size: 1rem;
-  border-radius: 50px;
-  border: 1px solid #333;
-  background-color: var(--surface-color);
-  color: var(--text-color);
-  transition: border-color 0.2s;
-}
-
-.search-form input:focus {
-  outline: none;
-  border-color: var(--primary-color);
-}
-
-.search-form button {
-  padding: 12px 25px;
-  font-size: 1rem;
-  font-weight: 700;
-  border-radius: 50px;
-  border: none;
-  background-color: var(--primary-color);
-  color: var(--text-color);
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.search-form button:hover {
-  background-color: #1ed760;
-}
-
-.search-form button:disabled {
-  background-color: #555;
-  cursor: not-allowed;
-}
-
-/* --- NEW YOUTUBE SEARCH RESULTS LIST --- */
-.search-results {
-  display: flex;
-  flex-direction: column;
-  gap: 10px; /* Space between list items */
-  margin-top: 20px;
-  margin-bottom: 30px;
-}
-
-.result-item {
-  display: flex; /* Aligns image and text side-by-side */
-  align-items: center; /* Vertically centers image and text */
-  background-color: var(--surface-color);
-  border-radius: 12px;
-  padding: 10px;
-  cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.2s ease;
-}
-
-.result-item:hover {
-  background-color: #2a2a2a;
-  transform: scale(1.02); /* Slight zoom effect on hover */
-}
-
-.result-item img {
-  width: 60px; /* Fixed width for the thumbnail */
-  height: 60px; /* Fixed height for the thumbnail */
-  border-radius: 8px; /* Slightly rounded corners for the thumbnail */
-  object-fit: cover; /* Ensures the image covers the area without distortion */
-  margin-right: 15px; /* Space between image and text */
-  flex-shrink: 0; /* Prevents the image from shrinking */
-}
-
-.result-item p {
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 500;
-  line-height: 1.4;
-  /* Remove text truncation from previous style */
-  white-space: normal;
-  overflow: visible;
-  text-overflow: clip;
-}
-
-/* --- Loader and Status Text --- */
-.loader {
-  text-align: center;
-  padding: 40px;
-  font-size: 1.2rem;
-  color: var(--text-color-secondary);
-}
+/* All other styles remain the same... */
+.search-form input{flex-grow:1;padding:12px 15px;font-size:1rem;border-radius:50px;border:1px solid #333;background-color:var(--surface-color);color:var(--text-color);transition:border-color .2s}
+.search-form input:focus{outline:none;border-color:var(--primary-color)}
+.search-form button{padding:12px 25px;font-size:1rem;font-weight:700;border-radius:50px;border:none;background-color:var(--primary-color);color:var(--text-color);cursor:pointer;transition:background-color .2s}
+.search-form button:hover{background-color:#1ed760}
+.search-form button:disabled{background-color:#555;cursor:not-allowed}
+.search-results{display:flex;flex-direction:column;gap:10px;margin-top:20px;margin-bottom:30px}
+.result-item{display:flex;align-items:center;background-color:var(--surface-color);border-radius:12px;padding:10px;cursor:pointer;transition:background-color .2s ease,transform .2s ease}
+.result-item:hover{background-color:#2a2a2a;transform:scale(1.02)}
+.result-item img{width:60px;height:60px;border-radius:8px;object-fit:cover;margin-right:15px;flex-shrink:0}
+.result-item p{margin:0;font-size:1rem;font-weight:500;line-height:1.4;white-space:normal;overflow:visible;text-overflow:clip}
+.loader{text-align:center;padding:40px;font-size:1.2rem;color:var(--text-color-secondary)}
