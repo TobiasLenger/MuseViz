@@ -1,6 +1,7 @@
 // File: api/lyrics.js
 import axios from 'axios';
-import cheerio from 'cheerio';
+// This is the line we fixed:
+import * as cheerio from 'cheerio';
 
 export default async function handler(req, res) {
   // Always set headers first
@@ -30,7 +31,6 @@ export default async function handler(req, res) {
     }
 
     // --- 2. Fallback: Scrape Genius ---
-    // Check for Genius Token
     if (!process.env.GENIUS_API_TOKEN) {
       throw new Error("GENIUS_API_TOKEN is not configured on the server.");
     }
@@ -65,11 +65,9 @@ export default async function handler(req, res) {
     });
 
   } catch (error) {
-    // This is the crucial catch block for the 500 error
     console.error('!!! SERVER-SIDE CRASH !!!:', error);
     return res.status(500).json({
       error: 'The server encountered an unexpected error.',
-      // Optionally include more detail for debugging, but be careful in production
       details: error.message, 
     });
   }
