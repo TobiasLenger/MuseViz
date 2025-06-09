@@ -1,3 +1,5 @@
+// File: src/App.jsx
+
 import React, { useState, useRef, useEffect } from 'react';
 import { searchYouTube } from './api/youtubeApi';
 import { fetchLyrics } from './api/lyricsApi';
@@ -21,65 +23,49 @@ function App() {
     e.preventDefault();
     if (!searchTerm) return;
     setIsLoading(true);
-    const results = await searchYouTube(searchTerm);
-    setSearchResults(results);
+    setSearchResults(await searchYouTube(searchTerm));
     setIsLoading(false);
   };
 
-const handleSelectVideo = async (video) => {
-  setSelectedVideo(video);
-  setSearchResults([]);
-  setIsLoading(true);
-  setLyricsData(null);
+  const handleSelectVideo = async (video) => {
+    setSelectedVideo(video);
+    setSearchResults([]);
+    setIsLoading(true);
+    setLyricsData(null);
 
-  const youtubeTitle = video.snippet.title;
-  const titleParts = youtubeTitle.split(' - ');
-
-  // --- THIS IS THE FIX ---
-  // Check if we successfully split the title into at least two parts
-  if (titleParts.length >= 2) {
-    const artist = titleParts[0].trim();
-    // Join the rest back together in case the song title itself had a '-'
-    const songTitle = titleParts.slice(1).join(' - ').trim();
+    const youtubeTitle = video.snippet.title;
+    const titleParts = youtubeTitle.split(' - ');
     
-    // Clean up title from things like (Official Video)
+    let artist, songTitle;
+
+    if (titleParts.length >= 2) {
+      artist = titleParts[0].trim();
+      songTitle = titleParts.slice(1).join(' - ').trim();
+    } else {
+      // Fallback for titles without a " - " separator
+      artist = video.snippet.channelTitle.replace(' - Topic', '').trim();
+      songTitle = youtubeTitle.trim();
+    }
+    
     const cleanedSongTitle = songTitle.replace(/\[.*?\]/g, '').replace(/\(.*?\)/g, '').trim();
-
-    const lyrics = await fetchLyrics(artist, cleanedSongTitle);
-    setLyricsData(lyrics);
-  } else {
-    // If we can't parse, show an error message
-    console.error("Could not parse artist and title from:", youtubeTitle);
-    setLyricsData({
-      synced: false,
-      lyrics: `Could not automatically determine the artist and title from the video name:\n"${youtubeTitle}"\n\nPlease try searching for a video with a "Artist - Title" format.`,
-    });
-  }
-  // --- END OF FIX ---
-
-  setIsLoading(false);
-};
+    
+    setLyricsData(await fetchLyrics(artist, cleanedSongTitle));
+    setIsLoading(false);
+  };
   
-  // This function is passed to the YouTube component
   const onPlayerReady = (event) => {
     playerRef.current = event.target;
   };
   
-  // This function is called when the player state changes (playing, paused)
   const onPlayerStateChange = (event) => {
-    // Player.PlayerState.PLAYING = 1
-    if (event.data === 1) {
-       // Start polling for current time
+    clearInterval(intervalRef.current);
+    if (event.data === 1) { // Playing
        intervalRef.current = setInterval(() => {
            setCurrentTime(playerRef.current.getCurrentTime());
-       }, 250); // Poll 4 times a second
-    } else {
-        // Clear interval when paused or ended
-        clearInterval(intervalRef.current);
+       }, 250);
     }
   };
   
-  // Cleanup interval on component unmount
   useEffect(() => {
     return () => clearInterval(intervalRef.current);
   }, []);
@@ -88,21 +74,12 @@ const handleSelectVideo = async (video) => {
     <div className="App">
       <header className="App-header">
         <h1>LyricSync</h1>
-        <p>Play YouTube videos as audio and get synced lyrics.</p>
       </header>
-
       <main>
         <form onSubmit={handleSearch} className="search-form">
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search for a song..."
-          />
-          <button type="submit" disabled={isLoading}>Search</button>
+          <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Search for a song..." disabled={isLoading} />
+          <button type="submit" disabled={isLoading}>{isLoading ? 'Searching...' : 'Search'}</button>
         </form>
-
-        {isLoading && <div className="loader"></div>}
 
         {searchResults.length > 0 && (
           <div className="search-results">
@@ -115,14 +92,11 @@ const handleSelectVideo = async (video) => {
           </div>
         )}
 
-        {selectedVideo && (
-            <>
-              <Player videoId={selectedVideo.id.videoId} onReady={onPlayerReady} onStateChange={onPlayerStateChange} />
-              <h2 className="current-song">{selectedVideo.snippet.title}</h2>
-            </>
-        )}
+        {selectedVideo && <Player videoId={selectedVideo.id.videoId} onReady={onPlayerReady} onStateChange={onPlayerStateChange} />}
+        
+        {isLoading && !lyricsData && <div className="loader">Loading Lyrics...</div>}
 
-        <LyricsViewer lyricsData={lyricsData} currentTime={currentTime} />
+        {lyricsData && <LyricsViewer lyricsData={lyricsData} currentTime={currentTime} />}
       </main>
     </div>
   );
