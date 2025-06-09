@@ -87,3 +87,29 @@ body {
 .result-item img{width:60px;height:60px;border-radius:8px;object-fit:cover;margin-right:15px;flex-shrink:0}
 .result-item p{margin:0;font-size:1rem;font-weight:500;line-height:1.4;white-space:normal;overflow:visible;text-overflow:clip}
 .loader{text-align:center;padding:40px;font-size:1.2rem;color:var(--text-color-secondary)}
+
+/* Add these new styles to the end of src/App.css */
+
+.replay-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 0;
+}
+
+.replay-button {
+  padding: 15px 40px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  border-radius: 50px;
+  border: none;
+  background-color: var(--primary-color);
+  color: var(--text-color);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.replay-button:hover {
+  background-color: #1ed760;
+  transform: scale(1.05);
+}

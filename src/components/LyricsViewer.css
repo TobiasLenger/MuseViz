@@ -52,3 +52,23 @@
   color: var(--text-color-secondary);
   padding: 40px 0;
 }
+
+/* Add/modify these rules in src/components/LyricsViewer.css */
+
+.lyric-line {
+  margin: 0;
+  padding: 15px 0;
+  font-size: 1.8rem;
+  font-weight: 500;
+  line-height: 1.6;
+  opacity: 0.4;
+  transition: all 0.3s ease-in-out;
+  cursor: pointer; /* <-- MAKE LYRICS CLICKABLE */
+  border-radius: 8px; /* Add radius for hover effect */
+}
+
+.lyric-line:hover {
+    background-color: rgba(255, 255, 255, 0.05); /* Subtle highlight on hover */
+}
+
+/* The rest of the file remains the same... */

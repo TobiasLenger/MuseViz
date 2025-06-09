@@ -3,83 +3,63 @@
 import React, { useRef, useEffect } from 'react';
 import './LyricsViewer.css';
 
-const LyricsViewer = ({ lyricsData, currentTime }) => {
+const LyricsViewer = ({ lyricsData, currentTime, onSeek }) => { // <-- Accept onSeek prop
   const activeLineRef = useRef(null);
-  const containerRef = useRef(null);
 
-  // Auto-scroll the active line into the center of the view
-  useEffect(() => {
-    if (activeLineRef.current) {
-      activeLineRef.current.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center',
-        inline: 'nearest'
-      });
-    }
-  }, [currentTime]); // Re-run whenever currentTime changes to keep it centered
-
-  if (!lyricsData || !lyricsData.lyrics) {
-    return <div className="lyrics-container"><div className="loader">Search for a song to see lyrics.</div></div>;
-  }
-
-  const { synced, lyrics } = lyricsData;
-  const areLyricsSynced = synced && Array.isArray(lyrics) && lyrics.length > 0;
-
+  // Calculate activeIndex inside the component
   let activeIndex = -1;
+  const areLyricsSynced = lyricsData?.synced && Array.isArray(lyricsData.lyrics) && lyricsData.lyrics.length > 0;
+
   if (areLyricsSynced) {
-    activeIndex = lyrics.findIndex((line, index) => {
-      const nextLine = lyrics[index + 1];
+    activeIndex = lyricsData.lyrics.findIndex((line, index) => {
+      const nextLine = lyricsData.lyrics[index + 1];
       if (typeof line.time !== 'number') return false;
       return currentTime >= line.time && (nextLine ? currentTime < nextLine.time : true);
     });
   }
 
-  // Render synced lyrics with the wheel effect
+  // Scroll effect still depends on activeIndex
+  useEffect(() => {
+    if (activeLineRef.current) {
+      activeLineRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      });
+    }
+  }, [activeIndex]);
+
+  if (!lyricsData || !lyricsData.lyrics) {
+    return <div className="lyrics-container"><div className="loader">Search for a song...</div></div>;
+  }
+  
   if (areLyricsSynced) {
     return (
-      <div className="lyrics-container" ref={containerRef}>
-        {lyrics.map((line, index) => {
-          const distance = index - activeIndex;
-
-          // Determine the class based on distance from the active line
-          let className = 'lyric-line';
-          if (distance === 0) {
-            className += ' active';
-          } else if (distance === 1) {
-            className += ' next-1';
-          } else if (distance === -1) {
-            className += ' prev-1';
-          } else if (distance === 2) {
-            className += ' next-2';
-          } else if (distance === -2) {
-            className += ' prev-2';
-          } else {
-            className += ' distant';
-          }
-          
-          return (
-            <p key={index} className={className} ref={distance === 0 ? activeLineRef : null}>
-              {line.text}
-            </p>
-          );
-        })}
+      <div className="lyrics-container">
+        {lyricsData.lyrics.map((line, index) => (
+          <p
+            key={index}
+            ref={index === activeIndex ? activeLineRef : null}
+            className={`lyric-line ${index === activeIndex ? 'active' : ''} ${index < activeIndex ? 'passed' : ''}`}
+            onClick={() => onSeek(line.time)} // <-- ADDED ONCLICK HANDLER
+          >
+            {line.text}
+          </p>
+        ))}
       </div>
     );
   }
 
-  // Render unsynced or error lyrics as static text
-  if (typeof lyrics === 'string') {
+  if (typeof lyricsData.lyrics === 'string') {
     return (
       <div className="lyrics-container">
-        <pre className="static-lyrics">{lyrics}</pre>
+        <pre className="static-lyrics">{lyricsData.lyrics}</pre>
       </div>
     );
   }
 
-  // Fallback for unexpected data format
   return (
     <div className="lyrics-container">
-      <div className="loader">Lyrics are available but could not be displayed.</div>
+      <div className="loader">Lyrics could not be displayed.</div>
     </div>
   );
 };
