@@ -16,8 +16,6 @@ body {
   color: var(--text-color);
   margin: 0;
   font-family: 'Poppins', sans-serif;
-  
-  /* Make the body a flex container to center the .App div */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -28,7 +26,7 @@ body {
 
 .App {
   width: 100%;
-  max-width: 800px; /* Controls the maximum width on large screens */
+  max-width: 800px;
 }
 
 /* --- Header Styles --- */
@@ -88,46 +86,48 @@ body {
   cursor: not-allowed;
 }
 
-/* --- YouTube Search Results Grid --- */
+/* --- NEW YOUTUBE SEARCH RESULTS LIST --- */
 .search-results {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px; /* Space between list items */
   margin-top: 20px;
   margin-bottom: 30px;
 }
 
 .result-item {
+  display: flex; /* Aligns image and text side-by-side */
+  align-items: center; /* Vertically centers image and text */
   background-color: var(--surface-color);
-  border-radius: 8px;
-  overflow: hidden;
+  border-radius: 12px;
+  padding: 10px;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
 .result-item:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+  background-color: #2a2a2a;
+  transform: scale(1.02); /* Slight zoom effect on hover */
 }
 
 .result-item img {
-  width: 100%;
-  height: auto;
-  aspect-ratio: 16 / 9;
-  object-fit: cover;
-  display: block;
+  width: 60px; /* Fixed width for the thumbnail */
+  height: 60px; /* Fixed height for the thumbnail */
+  border-radius: 8px; /* Slightly rounded corners for the thumbnail */
+  object-fit: cover; /* Ensures the image covers the area without distortion */
+  margin-right: 15px; /* Space between image and text */
+  flex-shrink: 0; /* Prevents the image from shrinking */
 }
 
 .result-item p {
-  padding: 15px;
   margin: 0;
-  font-size: 0.9rem;
+  font-size: 1rem;
   font-weight: 500;
   line-height: 1.4;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  /* Remove text truncation from previous style */
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
 }
 
 /* --- Loader and Status Text --- */
