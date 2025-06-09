@@ -145,3 +145,17 @@ body {
   color: var(--text-color);
   border-color: var(--text-color-secondary);
 }
+
+.recommendations-container {
+  margin-top: 30px;
+  border-top: 1px solid #333;
+  padding-top: 30px;
+}
+
+.recommendations-title {
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-color);
+  margin-bottom: 20px;
+}
