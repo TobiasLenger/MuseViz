@@ -113,3 +113,35 @@ body {
   background-color: #1ed760;
   transform: scale(1.05);
 }
+
+/* Add these new styles to the end of src/App.css */
+
+/* Update header to allow positioning of the stop button */
+.App-header {
+  position: relative; /* Add this */
+  display: flex;     /* Add this */
+  align-items: center; /* Add this */
+  justify-content: center; /* Add this */
+  /* ... keep existing styles ... */
+}
+
+/* Style for the new button */
+.stop-button {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--surface-color);
+  color: var(--text-color-secondary);
+  border: 1px solid #333;
+  font-size: 0.9rem;
+  padding: 8px 16px;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.stop-button:hover {
+  color: var(--text-color);
+  border-color: var(--text-color-secondary);
+}
