@@ -1,7 +1,9 @@
+// File: src/components/DevMenu.jsx
+
 import React from 'react';
 import './DevMenu.css';
 
-const DevMenu = ({ isOpen, onClose, onFileChange, onLrcChange, onLoadLocal, localFileName }) => {
+const DevMenu = ({ isOpen, onClose, onFileChange, onLrcFileChange, onLoadLocal, localFileName, localLrcFileName }) => {
   if (!isOpen) return null;
 
   return (
@@ -12,19 +14,15 @@ const DevMenu = ({ isOpen, onClose, onFileChange, onLrcChange, onLoadLocal, loca
         
         <div className="dev-input-group">
           <label htmlFor="mp3-upload">1. Upload MP3 File</label>
-          <input id="mp3-upload" type="file" accept=".mp3" onChange={onFileChange} />
+          <input id="mp3-upload" type="file" accept=".mp3,audio/mpeg" onChange={onFileChange} />
           {localFileName && <p className="file-name">Loaded: {localFileName}</p>}
         </div>
 
+        {/* --- UPDATED TO FILE PICKER --- */}
         <div className="dev-input-group">
-          <label htmlFor="lrc-upload">2. Paste LRC Lyrics</label>
-          <textarea
-            id="lrc-upload"
-            rows="10"
-            placeholder="[00:12.34] Lyric line 1
-[00:15.67] Lyric line 2..."
-            onChange={onLrcChange}
-          ></textarea>
+          <label htmlFor="lrc-upload">2. Upload LRC File</label>
+          <input id="lrc-upload" type="file" accept=".lrc" onChange={onLrcFileChange} />
+          {localLrcFileName && <p className="file-name">Loaded: {localLrcFileName}</p>}
         </div>
 
         <button className="dev-load-button" onClick={onLoadLocal}>Load Local Song & Lyrics</button>

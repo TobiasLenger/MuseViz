@@ -1,4 +1,4 @@
-// File: src/App.jsx (Corrected and Restructured)
+// File: src/App.jsx (Corrected and Final)
 
 import React, { useState, useRef, useEffect } from 'react';
 import { searchYouTube, getRelatedVideos } from './api/youtubeApi';
@@ -27,15 +27,28 @@ function App() {
   const [localFileUrl, setLocalFileUrl] = useState(null);
   const [localFileName, setLocalFileName] = useState('');
   const [localLrcText, setLocalLrcText] = useState('');
+  const [localLrcFileName, setLocalLrcFileName] = useState('');
 
   const playerRef = useRef(null);
-  const localAudioRef = useRef(null); // Ref for the <audio> element
+  const localAudioRef = useRef(null);
   const intervalRef = useRef(null);
 
   useEffect(() => { const handleKeyDown = (e) => { if (e.ctrlKey && e.shiftKey && e.key === 'D') { e.preventDefault(); setIsDevMenuOpen(prev => !prev); } }; window.addEventListener('keydown', handleKeyDown); return () => window.removeEventListener('keydown', handleKeyDown); }, []);
   const handleFileChange = (e) => { const file = e.target.files[0]; if (file) { setLocalFileUrl(URL.createObjectURL(file)); setLocalFileName(file.name); } };
-  const handleLrcChange = (e) => setLocalLrcText(e.target.value);
-  const handleLoadLocal = () => { if (!localFileUrl || !localLrcText) { alert("Please provide both an MP3 and LRC."); return; } handleStopPlayback(); setPlayerType('local'); setSelectedVideo({ snippet: { title: localFileName.replace('.mp3', ''), thumbnails: { default: { url: '' } } } }); setLyricsData({ synced: true, lyrics: parseLRC(localLrcText) }); setIsDevMenuOpen(false); };
+  
+  // --- NEW: LRC File Reader ---
+  const handleLrcFileChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setLocalLrcFileName(file.name);
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      setLocalLrcText(event.target.result);
+    };
+    reader.readAsText(file);
+  };
+
+  const handleLoadLocal = () => { if (!localFileUrl || !localLrcText) { alert("Please provide both an MP3 and LRC file."); return; } handleStopPlayback(); setPlayerType('local'); setSelectedVideo({ snippet: { title: localFileName.replace('.mp3', ''), thumbnails: { default: { url: '' } } } }); setLyricsData({ synced: true, lyrics: parseLRC(localLrcText) }); setIsDevMenuOpen(false); };
   
   const handleStopPlayback = () => {
     if (playerRef.current) playerRef.current.stopVideo?.();
@@ -44,43 +57,17 @@ function App() {
     if (localFileUrl) { URL.revokeObjectURL(localFileUrl); setLocalFileUrl(null); }
   };
 
-  // --- CORRECTED DUAL-LOGIC CONTROLS ---
   const handlePlayPause = () => {
     if (playerType === 'youtube' && playerRef.current) {
       const playerState = playerRef.current.getPlayerState();
       if (playerState === 1) playerRef.current.pauseVideo(); else playerRef.current.playVideo();
     } else if (playerType === 'local' && localAudioRef.current) {
-      if (localAudioRef.current.paused) {
-        localAudioRef.current.play();
-      } else {
-        localAudioRef.current.pause();
-      }
+      if (localAudioRef.current.paused) localAudioRef.current.play(); else localAudioRef.current.pause();
     }
   };
 
-  const handleSeek = (newTime) => {
-    const time = Number(newTime);
-    setCurrentTime(time);
-    if (playerType === 'youtube' && playerRef.current) {
-      playerRef.current.seekTo(time, true);
-    } else if (playerType === 'local' && localAudioRef.current) {
-      localAudioRef.current.currentTime = time;
-    }
-    if (!isPlaying && localAudioRef.current && localAudioRef.current.paused) {
-      localAudioRef.current.play();
-    }
-  };
-
-  const handleVolumeChange = (newVolume) => {
-    const vol = Number(newVolume);
-    setVolume(vol);
-    if (playerType === 'youtube' && playerRef.current) {
-      playerRef.current.setVolume(vol);
-    } else if (playerType === 'local' && localAudioRef.current) {
-      localAudioRef.current.volume = vol / 100;
-    }
-  };
-
+  const handleSeek = (newTime) => { const time = Number(newTime); setCurrentTime(time); if (playerType === 'youtube' && playerRef.current) { playerRef.current.seekTo(time, true); } else if (playerType === 'local' && localAudioRef.current) { localAudioRef.current.currentTime = time; } if (!isPlaying) { if (playerType === 'youtube') { playerRef.current.playVideo(); } else { localAudioRef.current.play(); } } };
+  const handleVolumeChange = (newVolume) => { const vol = Number(newVolume); setVolume(vol); if (playerType === 'youtube' && playerRef.current) { playerRef.current.setVolume(vol); } else if (playerType === 'local' && localAudioRef.current) { localAudioRef.current.volume = vol / 100; } };
   const handleReplay = () => handleSeek(0);
   
   const onPlayerReady = (event) => { playerRef.current = event.target; playerRef.current.setVolume(volume); };
@@ -93,8 +80,9 @@ function App() {
 
   return (
     <div className="App">
-      <DevMenu isOpen={isDevMenuOpen} onClose={() => setIsDevMenuOpen(false)} onFileChange={handleFileChange} onLrcChange={handleLrcChange} onLoadLocal={handleLoadLocal} localFileName={localFileName} />
-      <header className={`App-header ${selectedVideo ? 'condensed' : ''}`}>
+      <DevMenu isOpen={isDevMenuOpen} onClose={() => setIsDevMenuOpen(false)} onFileChange={handleFileChange} onLrcFileChange={handleLrcFileChange} onLoadLocal={handleLoadLocal} localFileName={localFileName} localLrcFileName={localLrcFileName} />
+      
+      <header className={`App-header ${selectedVideo ? 'sticky' : ''}`}>
         <h1>LyricSync</h1>
         {selectedVideo && !isSongFinished && <button onClick={handleStopPlayback} className="stop-button">New Search</button>}
       </header>
@@ -105,31 +93,30 @@ function App() {
           ref={localAudioRef}
           src={localFileUrl}
           onTimeUpdate={(e) => setCurrentTime(e.target.currentTime)}
-          onLoadedMetadata={(e) => setDuration(e.target.duration)}
+          onLoadedMetadata={(e) => { setDuration(e.target.duration); e.target.play(); }}
           onPlay={() => setIsPlaying(true)}
           onPause={() => setIsPlaying(false)}
           onEnded={() => setIsSongFinished(true)}
           onVolumeChange={(e) => setVolume(e.target.volume * 100)}
           style={{ display: 'none' }}
-          autoPlay
         />
       )}
 
       <main>
-        {(!selectedVideo || isSongFinished) && (
-          <form onSubmit={handleSearch} className="search-form">
-            <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Search for a song..." disabled={isLoading} />
-            <button type="submit" disabled={isLoading}>{isLoading ? 'Searching...' : 'Search'}</button>
-          </form>
+        {!selectedVideo && (
+          <div className="search-container">
+            <form onSubmit={handleSearch} className="search-form">
+              <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Search for a song..." disabled={isLoading} />
+              <button type="submit" disabled={isLoading}>{isLoading ? 'Searching...' : 'Search'}</button>
+            </form>
+            {searchResults.length > 0 && <div className="search-results">{searchResults.map((video) => (<div key={video.id.videoId} className="result-item" onClick={() => handleSelectVideo(video)}><img src={video.snippet.thumbnails.default.url} alt={video.snippet.title} /><p>{video.snippet.title}</p></div>))}</div>}
+          </div>
         )}
-        {searchResults.length > 0 && <div className="search-results">{searchResults.map((video) => (<div key={video.id.videoId} className="result-item" onClick={() => handleSelectVideo(video)}><img src={video.snippet.thumbnails.default.url} alt={video.snippet.title} /><p>{video.snippet.title}</p></div>))}</div>}
         
-        {selectedVideo && !isSongFinished && lyricsData && (
-          <LyricsViewer lyricsData={lyricsData} currentTime={currentTime} onSeek={handleSeek} />
-        )}
+        {selectedVideo && !isSongFinished && lyricsData && <LyricsViewer lyricsData={lyricsData} currentTime={currentTime} onSeek={handleSeek} />}
         
         {selectedVideo && isSongFinished && (
-          <>
+          <div className="post-song-container">
             <div className="replay-container"><button onClick={handleReplay} className="replay-button">Replay</button></div>
             {recommendations.length > 0 && (
               <div className="recommendations-container">
@@ -137,9 +124,10 @@ function App() {
                 <div className="search-results">{recommendations.map((rec) => (<div key={rec.id.videoId} className="result-item" onClick={() => handleSelectVideo(rec)}><img src={rec.snippet.thumbnails.default.url} alt={rec.snippet.title} /><p>{rec.snippet.title}</p></div>))}</div>
               </div>
             )}
-          </>
+          </div>
         )}
-        {isLoading && !lyricsData && <div className="loader">Loading...</div>}
+        
+        {isLoading && <div className="loader">Loading...</div>}
       </main>
 
       {selectedVideo && !isSongFinished && (
