@@ -45,7 +45,8 @@ header {
   width: 100%;
   z-index: 10;
   background-color: var(--background-color);
-  filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid #333;
 }
 
 header h1 {
