@@ -1,27 +1,99 @@
 /* File: src/App.css */
+
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&family=Roboto+Mono&display=swap');
-:root { --primary-color: #1DB954; --background-color: #121212; --surface-color: #1e1e1e; --text-color: #ffffff; --text-color-secondary: #b3b3b3; --footer-height: 90px; }
-body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background-color: var(--background-color); color: var(--text-color); font-family: 'Poppins', sans-serif; }
-.App { display: flex; flex-direction: column; height: 100vh; max-width: 1200px; margin: 0 auto; }
-.App-header { flex-shrink: 0; text-align: center; padding: 20px; transition: all 0.4s ease-in-out; position: relative; display: flex; align-items: center; justify-content: center; }
-.App-header h1 { font-size: 2rem; color: var(--primary-color); margin: 0; font-weight: 700; transition: font-size 0.4s ease-in-out; }
-.App-header.condensed h1 { font-size: 1.5rem; }
-.stop-button { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); background: var(--surface-color); color: var(--text-color-secondary); border: 1px solid #333; font-size: 0.9rem; padding: 8px 16px; border-radius: 50px; cursor: pointer; transition: all 0.2s ease; }
-.stop-button:hover { color: var(--text-color); border-color: var(--text-color-secondary); }
-main { flex-grow: 1; overflow: hidden; /* IMPORTANT: Main content area does not scroll */ display: flex; flex-direction: column; }
-.search-container, .post-song-container { overflow-y: auto; padding: 0 20px; } /* These internal containers scroll */
+
+:root {
+  --primary-color: #1DB954;
+  --background-color: #121212;
+  --surface-color: #1e1e1e;
+  --text-color: #ffffff;
+  --text-color-secondary: #b3b3b3;
+}
+
+body {
+  background-color: var(--background-color);
+  color: var(--text-color);
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center; /* This is the key change: from 'flex-start' to 'center' */
+  min-height: 100vh;
+  padding: 40px 20px;
+  box-sizing: border-box;
+}
+
+.App {
+  width: 100%;
+  max-width: 800px;
+}
+
+.App-header {
+  text-align: center;
+  margin-bottom: 40px;
+  transition: all 0.4s ease-in-out;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.App-header h1 {
+  font-size: 3rem;
+  color: var(--primary-color);
+  margin: 0;
+  font-weight: 700;
+  transition: font-size 0.4s ease-in-out;
+}
+
+.App-header.condensed { margin-bottom: 20px; }
+.App-header.condensed h1 { font-size: 1.8rem; }
+
+.stop-button {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--surface-color);
+  color: var(--text-color-secondary);
+  border: 1px solid #333;
+  font-size: 0.9rem;
+  padding: 8px 16px;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.stop-button:hover {
+  color: var(--text-color);
+  border-color: var(--text-color-secondary);
+}
+
+.current-song-title {
+  text-align: center;
+  color: var(--text-color-secondary);
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin-bottom: 20px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .search-form { display: flex; gap: 10px; margin-bottom: 30px; }
 .search-form input{flex-grow:1;padding:12px 15px;font-size:1rem;border-radius:50px;border:1px solid #333;background-color:var(--surface-color);color:var(--text-color);transition:border-color .2s}
 .search-form input:focus{outline:none;border-color:var(--primary-color)}
 .search-form button{padding:12px 25px;font-size:1rem;font-weight:700;border-radius:50px;border:none;background-color:var(--primary-color);color:var(--text-color);cursor:pointer;transition:background-color .2s}
-.search-results{display:flex;flex-direction:column;gap:10px;margin-bottom:30px}
+.search-form button:hover{background-color:#1ed760}
+.search-form button:disabled{background-color:#555;cursor:not-allowed}
+.search-results{display:flex;flex-direction:column;gap:10px;margin-top:20px;margin-bottom:30px}
 .result-item{display:flex;align-items:center;background-color:var(--surface-color);border-radius:12px;padding:10px;cursor:pointer;transition:background-color .2s ease,transform .2s ease}
 .result-item:hover{background-color:#2a2a2a;transform:scale(1.02)}
 .result-item img{width:60px;height:60px;border-radius:8px;object-fit:cover;margin-right:15px;flex-shrink:0}
-.result-item p{margin:0;font-size:1rem;font-weight:500}
-.loader{text-align:center;padding:40px;font-size:1.2rem;color:var(--text-color-secondary); margin: auto;}
+.result-item p{margin:0;font-size:1rem;font-weight:500;line-height:1.4;white-space:normal;overflow:visible;text-overflow:clip}
+.loader{text-align:center;padding:40px;font-size:1.2rem;color:var(--text-color-secondary)}
 .replay-container{display:flex;justify-content:center;align-items:center;padding:40px 0}
 .replay-button{padding:15px 40px;font-size:1.2rem;font-weight:700;border-radius:50px;border:none;background-color:var(--primary-color);color:var(--text-color);cursor:pointer;transition:all .2s ease}
+.replay-button:hover{background-color:#1ed760;transform:scale(1.05)}
 .recommendations-container{margin-top:30px;border-top:1px solid #333;padding-top:30px}
 .recommendations-title{text-align:center;font-size:1.5rem;font-weight:700;color:var(--text-color);margin-bottom:20px}
-.playback-footer { flex-shrink: 0; width: 100%; background-color: #181818; border-top: 1px solid #282828; z-index: 1000; height: var(--footer-height); box-sizing: border-box; display: flex; align-items: center; }
