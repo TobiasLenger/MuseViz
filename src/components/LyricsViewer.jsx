@@ -1,10 +1,10 @@
 import React, { useRef, useEffect } from 'react';
-import './LyricsViewer.css'; // We'll create this file for styling
+import './LyricsViewer.css';
 
 const LyricsViewer = ({ lyricsData, currentTime }) => {
   const activeLineRef = useRef(null);
 
-  if (!lyricsData || !lyricsData.lyrics) {
+ if (!lyricsData || typeof lyricsData.lyrics !== 'string' && !Array.isArray(lyricsData.lyrics)) {
     return <div className="lyrics-container"><p>Search for a song to see lyrics.</p></div>;
   }
 
